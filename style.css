@@ -4318,3 +4318,75 @@ select {
         margin: 0 0 0 14px;
     }
 }
+
+.database-panel .table-wrap {
+    overflow-x: auto;
+}
+
+.database-panel table {
+    min-width: 720px;
+}
+
+.database-panel th,
+.database-panel td {
+    padding: 14px 20px;
+    text-align: left;
+    vertical-align: middle;
+}
+
+.database-panel th {
+    background: #f8f8f9;
+    color: #68686e;
+    font-size: 10px;
+}
+
+.database-panel td {
+    height: 64px;
+    border-bottom: 1px solid #eeeeef;
+    color: #303035;
+    font-size: 14px;
+}
+
+.database-panel tbody tr {
+    transition: background .18s ease;
+}
+
+.database-panel tbody tr:nth-child(even) {
+    background: #fcfcfd;
+}
+
+.database-panel tbody tr:hover {
+    background: #fff5f6;
+}
+
+.database-panel td:first-child strong {
+    color: #202024;
+    font-size: 14px;
+    letter-spacing: .01em;
+}
+
+.database-panel .table-subtext {
+    margin-top: 4px;
+    font-size: 11px;
+}
+
+.database-panel .student-risk {
+    display: inline-flex;
+    min-width: 68px;
+    justify-content: center;
+    padding: 7px 10px;
+    font-size: 10px;
+}
+
+.database-panel .table-action {
+    min-width: 62px;
+    padding: 9px 14px;
+    border-radius: 9px;
+    font-size: 11px;
+    font-weight: 800;
+}
+
+.database-panel .empty-row td {
+    height: 210px;
+    text-align: center;
+}
