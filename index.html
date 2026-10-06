@@ -5,8 +5,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Student Success Dashboard</title>
-    <link rel="stylesheet" href="style.css?v=20261006-database-table">
-    <script src="script.js?v=20261006-feature-suite" defer></script>
+    <link rel="stylesheet" href="style.css?v=20261006-settings-help">
+    <script src="script.js?v=20261006-settings-help" defer></script>
 </head>
 
 <body>
@@ -71,10 +71,10 @@
             <div class="nav-label lower-label">Preferences</div>
 
             <div class="system-links">
-                <button class="system-link" data-toast="Settings panel coming soon." type="button">
+                <button class="system-link" data-go-page="settings" type="button">
                     <span>⚙</span> Settings
                 </button>
-                <button class="system-link" data-toast="Help center coming soon." type="button">
+                <button class="system-link" data-go-page="help" type="button">
                     <span>?</span> Help Center
                 </button>
             </div>
@@ -865,6 +865,125 @@
                         <p class="scenario-disclaimer">Score and risk indicators are recalculated with the dashboard’s published rules. A file import does not create semester history or connect external systems.</p>
                     </article>
                     <div class="data-quality-grid" id="dataQualityCards"></div>
+                </section>
+
+                <section class="page" data-view="settings">
+                    <div class="page-intro">
+                        <div>
+                            <span class="section-eyebrow">PREFERENCES</span>
+                            <h2>Settings</h2>
+                            <p>Adjust how this dashboard looks and manage demo data saved in this browser.</p>
+                        </div>
+                        <div class="intro-badge">SAVED ON THIS DEVICE</div>
+                    </div>
+                    <div class="settings-layout">
+                        <article class="panel settings-card">
+                            <div class="settings-card-heading">
+                                <span class="settings-icon">▤</span>
+                                <div><span class="panel-kicker">DISPLAY</span><h3>Dashboard appearance</h3></div>
+                            </div>
+                            <label class="settings-control" for="tableDensity">
+                                <span><strong>Database table density</strong><small>Choose how much space each student row uses.</small></span>
+                                <select id="tableDensity">
+                                    <option value="comfortable">Comfortable</option>
+                                    <option value="compact">Compact</option>
+                                </select>
+                            </label>
+                            <label class="settings-toggle" for="reducedMotion">
+                                <span><strong>Reduce motion</strong><small>Turn off decorative movement and smooth scrolling.</small></span>
+                                <input id="reducedMotion" type="checkbox">
+                                <span class="toggle-track" aria-hidden="true"></span>
+                            </label>
+                        </article>
+                        <article class="panel settings-card">
+                            <div class="settings-card-heading">
+                                <span class="settings-icon">◉</span>
+                                <div><span class="panel-kicker">LOCAL DEMO DATA</span><h3>Privacy & storage</h3></div>
+                            </div>
+                            <p class="settings-description">Intervention notes, follow-up statuses, and Peer Learning posts are stored only in this browser. They are not sent to the backend or shared with other staff.</p>
+                            <div class="settings-data-status">
+                                <span><i></i> Browser-only storage</span>
+                                <span>Not suitable for sensitive student information</span>
+                            </div>
+                            <button class="danger-button" id="clearDemoData" type="button">Clear local demo data</button>
+                        </article>
+                        <article class="panel settings-card settings-shortcuts">
+                            <div class="settings-card-heading">
+                                <span class="settings-icon">↗</span>
+                                <div><span class="panel-kicker">QUICK ACCESS</span><h3>Jump to a workspace</h3></div>
+                            </div>
+                            <div class="settings-shortcut-list">
+                                <button type="button" data-go-page="data"><span>Data Lab</span><b>CSV checks and preview →</b></button>
+                                <button type="button" data-go-page="actions"><span>Action Center</span><b>Review support follow-ups →</b></button>
+                                <button type="button" data-go-page="learning"><span>Peer Learning</span><b>Open the skills exchange →</b></button>
+                            </div>
+                        </article>
+                    </div>
+                </section>
+
+                <section class="page" data-view="help">
+                    <div class="page-intro">
+                        <div>
+                            <span class="section-eyebrow">GUIDES & FAQ</span>
+                            <h2>Help Center</h2>
+                            <p>Quick instructions for using the Student Success dashboard responsibly.</p>
+                        </div>
+                        <div class="intro-badge is-connected">DEMO GUIDE</div>
+                    </div>
+                    <div class="help-search panel">
+                        <span aria-hidden="true">⌕</span>
+                        <input id="helpSearch" type="search" placeholder="Search help topics…" aria-label="Search help topics">
+                    </div>
+                    <div class="help-layout">
+                        <article class="panel help-start-card">
+                            <span class="settings-icon">✦</span>
+                            <span class="panel-kicker">GETTING STARTED</span>
+                            <h3>Your quick-start guide</h3>
+                            <ol>
+                                <li><strong>Review the overview</strong><span>Check cohort indicators and flagged students.</span></li>
+                                <li><strong>Open a student record</strong><span>See score factors, support drivers, and department context.</span></li>
+                                <li><strong>Plan a follow-up</strong><span>Use the Action Center to track a next step locally.</span></li>
+                                <li><strong>Check your data</strong><span>Use Data Lab to validate and preview an approved demo CSV.</span></li>
+                            </ol>
+                            <button class="primary-button" type="button" data-go-page="overview">Go to dashboard <b>→</b></button>
+                        </article>
+                        <article class="panel help-faq-panel">
+                            <span class="panel-kicker">COMMON QUESTIONS</span>
+                            <h3>How can we help?</h3>
+                            <div class="help-faq-list" id="helpFaqList">
+                                <details class="help-faq" data-help-topic>
+                                    <summary>How is the Student Success Score calculated?</summary>
+                                    <p>It is a weighted 0–100 score using CGPA (20%), attendance (15%), LMS (15%), engagement (10%), coding (10%), skills (10%), placement readiness (10%), and feedback (10%). The Analytics page shows the scoring method.</p>
+                                </details>
+                                <details class="help-faq" data-help-topic>
+                                    <summary>What do HIGH, MEDIUM, and LOW risk mean?</summary>
+                                    <p>Academic risk bands are based on the overall score: HIGH is below 60, MEDIUM is 60 to below 80, and LOW is 80 or above. Placement risk is classified separately. These are rules-based support signals, not a validated prediction.</p>
+                                </details>
+                                <details class="help-faq" data-help-topic>
+                                    <summary>Are Action Center notes shared with the college?</summary>
+                                    <p>No. This demo stores follow-up notes in this browser only. There are no staff accounts or shared secure storage, so do not enter sensitive personal or student information.</p>
+                                </details>
+                                <details class="help-faq" data-help-topic>
+                                    <summary>Does importing a CSV upload my data?</summary>
+                                    <p>No. CSV validation and preview happen in your browser. Import changes the current dashboard view for this session; refreshing returns to the backend dataset.</p>
+                                </details>
+                                <details class="help-faq" data-help-topic>
+                                    <summary>Why is there no historical trend for a student?</summary>
+                                    <p>The current dataset contains one current record per student, not semester-by-semester history. The dashboard avoids inventing trends or subject-level details that are not in the source data.</p>
+                                </details>
+                                <details class="help-faq" data-help-topic>
+                                    <summary>What should I do if the backend is offline?</summary>
+                                    <p>Check the System Status indicator and reload after the API is available. Imported CSV data is temporary and does not replace or repair the backend dataset.</p>
+                                </details>
+                            </div>
+                            <p class="help-no-results" id="helpNoResults" hidden>No help topics match that search. Try a simpler term such as “score” or “CSV”.</p>
+                        </article>
+                    </div>
+                    <div class="help-bottom-links">
+                        <button type="button" data-go-page="analytics">Scoring methodology →</button>
+                        <button type="button" data-go-page="risk">Risk monitor →</button>
+                        <button type="button" data-go-page="data">CSV data guide →</button>
+                    </div>
                 </section>
 
             </div>

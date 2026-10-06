@@ -29,10 +29,13 @@ document.addEventListener("DOMContentLoaded", function () {
         ai: { title: "Predictive Analysis", label: "PREDICTIONS" },
         actions: { title: "Intervention Action Center", label: "ACTION CENTER" },
         learning: { title: "Peer Learning Exchange", label: "PEER LEARNING" },
-        data: { title: "Data Lab", label: "DATA LAB" }
+        data: { title: "Data Lab", label: "DATA LAB" },
+        settings: { title: "Settings", label: "SETTINGS" },
+        help: { title: "Help Center", label: "HELP CENTER" }
     };
     const ACTION_STORAGE_KEY = "studentSuccessDemo.actions.v1";
     const LEARNING_STORAGE_KEY = "studentSuccessDemo.learning.v1";
+    const SETTINGS_STORAGE_KEY = "studentSuccessDemo.settings.v1";
     const demoLearningPosts = [
         { id: "demo-python", alias: "Code buddy", intent: "teach", topic: "Python basics", details: "Happy to help with loops, functions, and a small first project.", mode: "Online group", demo: true, interested: false },
         { id: "demo-interview", alias: "Future ready", intent: "learn", topic: "Interview practice", details: "Looking for a friendly peer to practise common placement questions.", mode: "In-person group", demo: true, interested: false },
@@ -43,6 +46,7 @@ document.addEventListener("DOMContentLoaded", function () {
     let importedDataset = false;
     let interventionRecords = {};
     let learningPosts = demoLearningPosts.slice();
+    let dashboardSettings = { tableDensity: "comfortable", reducedMotion: false };
     let learningFilter = "all";
     let activeFilter = "all";
     let activeSegment = "";
@@ -90,6 +94,31 @@ document.addEventListener("DOMContentLoaded", function () {
         } catch (error) {
             showNotification("Could not save this demo update in this browser: " + error.message);
             return false;
+        }
+    }
+
+    dashboardSettings = Object.assign(
+        { tableDensity: "comfortable", reducedMotion: false },
+        readLocalRecords(SETTINGS_STORAGE_KEY, {}, function (value) {
+            return value !== null && typeof value === "object" && !Array.isArray(value) &&
+                ["comfortable", "compact"].includes(value.tableDensity || "comfortable") &&
+                typeof (value.reducedMotion == null ? false : value.reducedMotion) === "boolean";
+        })
+    );
+
+    function applyDashboardSettings() {
+        document.body.dataset.tableDensity = dashboardSettings.tableDensity;
+        document.body.classList.toggle("reduce-motion", dashboardSettings.reducedMotion);
+        const densityControl = document.getElementById("tableDensity");
+        const motionControl = document.getElementById("reducedMotion");
+        if (densityControl) densityControl.value = dashboardSettings.tableDensity;
+        if (motionControl) motionControl.checked = dashboardSettings.reducedMotion;
+    }
+
+    function persistDashboardSettings() {
+        if (saveLocalRecords(SETTINGS_STORAGE_KEY, dashboardSettings)) {
+            applyDashboardSettings();
+            showNotification("Dashboard preference saved on this device.");
         }
     }
 
@@ -1448,6 +1477,59 @@ document.addEventListener("DOMContentLoaded", function () {
             showNotification(button.dataset.toast);
         });
     });
+
+    applyDashboardSettings();
+    const tableDensity = document.getElementById("tableDensity");
+    if (tableDensity) tableDensity.addEventListener("change", function () {
+        dashboardSettings.tableDensity = tableDensity.value;
+        persistDashboardSettings();
+    });
+    const reducedMotion = document.getElementById("reducedMotion");
+    if (reducedMotion) reducedMotion.addEventListener("change", function () {
+        dashboardSettings.reducedMotion = reducedMotion.checked;
+        persistDashboardSettings();
+    });
+
+    const clearDemoData = document.getElementById("clearDemoData");
+    if (clearDemoData) clearDemoData.addEventListener("click", function () {
+        if (!window.confirm("Clear locally saved intervention follow-ups and Peer Learning posts from this browser? This cannot be undone.")) {
+            return;
+        }
+        try {
+            window.localStorage.removeItem(ACTION_STORAGE_KEY);
+            window.localStorage.removeItem(LEARNING_STORAGE_KEY);
+        } catch (error) {
+            showNotification("Could not clear browser-only demo data: " + error.message);
+            return;
+        }
+        interventionRecords = Object.create(null);
+        learningPosts = demoLearningPosts.slice();
+        renderActionCenter();
+        renderPeerLearning();
+        const selectedStudentHeading = document.querySelector(".student-inspector .profile-placeholder h3");
+        if (selectedStudentHeading) {
+            const selected = students.find(function (student) {
+                return String(student.student_id) === selectedStudentHeading.textContent;
+            });
+            if (selected) renderStudentDetails(selected);
+        }
+        showNotification("Local demo data cleared. Your display preferences were kept.");
+    });
+
+    const helpSearch = document.getElementById("helpSearch");
+    if (helpSearch) helpSearch.addEventListener("input", function () {
+        const query = helpSearch.value.trim().toLowerCase();
+        const topics = Array.from(document.querySelectorAll("[data-help-topic]"));
+        let visibleCount = 0;
+        topics.forEach(function (topic) {
+            const matches = topic.textContent.toLowerCase().includes(query);
+            topic.hidden = !matches;
+            if (matches) visibleCount += 1;
+        });
+        const noResults = document.getElementById("helpNoResults");
+        if (noResults) noResults.hidden = visibleCount > 0;
+    });
+
     if (footerYear) footerYear.textContent = new Date().getFullYear();
     const exportButton = document.getElementById("exportInterventionPlan");
     if (exportButton) exportButton.addEventListener("click", exportInterventionPlan);
