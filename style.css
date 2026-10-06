@@ -4135,3 +4135,183 @@ select {
         grid-template-columns: repeat(2, minmax(0, 1fr));
     }
 }
+
+/* Keep the risk summary compact so the useful counts sit above the fold. */
+.risk-dashboard {
+    grid-template-columns: minmax(250px, 0.85fr) minmax(0, 1.15fr);
+    align-items: stretch;
+    gap: 16px;
+}
+
+.risk-overview-card,
+.rule-card {
+    min-height: 0;
+    padding: 22px;
+}
+
+.intervention-card {
+    grid-column: 1 / -1;
+    min-height: 0;
+    padding: 22px;
+}
+
+.risk-overview-card {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+}
+
+.risk-big {
+    display: block;
+    width: auto;
+    height: auto;
+    margin: 18px 0 0;
+    border: 0;
+    border-radius: 0;
+    color: var(--primary);
+    background: none;
+    box-shadow: none;
+    font-size: clamp(48px, 5vw, 66px);
+    line-height: 1;
+    letter-spacing: -0.06em;
+}
+
+.risk-overview-card > p {
+    margin-top: 8px;
+    color: var(--muted);
+    text-align: left;
+    font-size: 12px;
+    line-height: 1.5;
+}
+
+.risk-mini-grid {
+    margin-top: 20px;
+    gap: 8px;
+}
+
+.risk-mini-grid div {
+    padding: 11px 7px;
+    border-color: var(--border);
+    background: #fafafa;
+}
+
+.risk-mini-grid span {
+    color: var(--muted);
+    font-size: 9px;
+}
+
+.risk-mini-grid strong {
+    margin-top: 5px;
+    color: var(--text);
+    font-size: 22px;
+}
+
+.risk-mini-grid div:first-child strong {
+    color: #b42335;
+}
+
+.risk-mini-grid div:nth-child(2) strong {
+    color: #8a5b00;
+}
+
+.risk-mini-grid div:nth-child(3) strong {
+    color: #24734b;
+}
+
+.placement-risk-summary {
+    margin-top: auto;
+    padding-top: 15px;
+}
+
+.rule-card,
+.intervention-card {
+    display: flex;
+    flex-direction: column;
+}
+
+.rule-card .panel-head,
+.intervention-card .panel-head {
+    padding: 0 0 14px;
+}
+
+.factor-list,
+.workflow {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 24px minmax(0, 1fr) 24px minmax(0, 1fr);
+    align-items: center;
+    padding: 0;
+}
+
+.factor {
+    grid-template-columns: 34px 1fr;
+    gap: 11px;
+    padding: 12px;
+    border-color: var(--border);
+    background: #fafafa;
+}
+
+.factor-number {
+    color: var(--primary);
+    background: #fff0f2;
+}
+
+.factor strong,
+.workflow-step strong {
+    color: var(--text);
+    font-size: 12px;
+}
+
+.factor p,
+.workflow-step p {
+    color: var(--muted);
+    font-size: 11px;
+}
+
+.workflow-step > span {
+    color: var(--primary);
+    background: #fff0f2;
+    border-color: #f2d1d7;
+}
+
+.workflow-line {
+    width: 100%;
+    height: 1px;
+    margin: 0;
+    background: #f2d1d7;
+}
+
+.intervention-card .full-button {
+    width: 100%;
+    margin: 20px 0 0;
+}
+
+@media (max-width: 1100px) {
+    .risk-dashboard {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .intervention-card {
+        grid-column: 1 / -1;
+    }
+}
+
+@media (max-width: 700px) {
+    .risk-dashboard {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .intervention-card {
+        grid-column: auto;
+    }
+
+    .workflow {
+        grid-template-columns: minmax(0, 1fr);
+        gap: 6px;
+    }
+
+    .workflow-line {
+        width: 1px;
+        height: 13px;
+        margin: 0 0 0 14px;
+    }
+}
