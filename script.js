@@ -507,25 +507,38 @@ document.addEventListener("DOMContentLoaded", function () {
                 return '<li>' + escapeHtml(driver.message) + '</li>';
             }).join("") + '</ul>'
             : '<p class="insight-clear">No individual risk-driver threshold is currently triggered.</p>';
+        const profileScore = Number(student.success_score);
+        const profileScorePercent = Number.isFinite(profileScore)
+            ? Math.max(0, Math.min(100, profileScore))
+            : 0;
+        const profileRisk = String(student.risk || "UNKNOWN").toUpperCase();
         inspector.innerHTML =
             '<button class="student-detail-back" type="button" data-back-students>← Student list</button>' +
-            '<div class="inspector-top"><span class="panel-kicker">STUDENT DETAILS</span>' +
-            '<span class="live-chip">' + escapeHtml(student.risk || "UNKNOWN") + '</span></div>' +
+            '<div class="inspector-top"><span class="panel-kicker">STUDENT PROFILE</span>' +
+            '<span class="live-chip risk-' + riskClass(profileRisk) + '">' +
+            escapeHtml(profileRisk) + ' RISK</span></div>' +
+            '<section class="student-profile-hero"><div class="student-profile-identity">' +
+            '<div class="profile-avatar">' + escapeHtml(String(student.student_id || "?").slice(-2)) +
+            '</div><div class="student-profile-copy"><span class="panel-kicker">STUDENT RECORD</span>' +
+            '<h2>' + escapeHtml(student.student_id) + '</h2><p>' +
+            escapeHtml(student.department || "Department unavailable") + ' department</p><span class="student-profile-segment">' +
+            escapeHtml(student.segment_label || "Unclassified") + '</span></div></div>' +
+            '<div class="student-profile-score" style="--profile-score:' + profileScorePercent +
+            '%"><div><strong>' + (Number.isFinite(profileScore) ? escapeHtml(profileScore.toFixed(1)) : "—") +
+            '</strong><span>SUCCESS<br>SCORE</span></div></div></section>' +
+            '<div class="placeholder-stats student-profile-metrics">' +
+            '<div><span>CGPA</span><strong>' + escapeHtml(student.cgpa) + '<small> / 10</small></strong></div>' +
+            '<div><span>ATTENDANCE</span><strong>' + escapeHtml(student.attendance) + '<small>%</small></strong></div>' +
+            '<div><span>PLACEMENT</span><strong>' + escapeHtml(student.placement_score) + '<small> / 100</small></strong></div>' +
+            '<div><span>PLACEMENT RISK</span><strong class="student-profile-placement risk-' +
+            riskClass(student.placement_risk) + '">' + escapeHtml(student.placement_risk || "UNKNOWN") +
+            '</strong></div></div>' +
             '<section class="student-insight-section student-graph-section"><div class="student-graph-heading">' +
             '<div><span class="panel-kicker">INDIVIDUAL STUDENT ANALYSIS</span><h4>' +
             escapeHtml(student.student_id) + ' · performance across indicators</h4></div>' +
             '<span class="student-graph-scale">9 measures · 0–100 graph scale</span></div>' +
             studentAnalysis + '<div class="student-indicator-graph">' + indicatorGraph + '</div>' +
             '<p class="student-graph-note">Bars compare the selected student with other current records in the same department. CGPA is normalized from 0–10 for the graph; its displayed value stays on the original scale. This is not a semester trend or prediction.</p></section>' +
-            '<div class="placeholder-stats">' +
-            '<div><span>CGPA</span><strong>' + escapeHtml(student.cgpa) + '</strong></div>' +
-            '<div><span>ATTENDANCE</span><strong>' + escapeHtml(student.attendance) + '%</strong></div>' +
-            '<div><span>LMS SCORE</span><strong>' + escapeHtml(student.lms_score) + '</strong></div>' +
-            '<div><span>SUCCESS SCORE</span><strong>' + escapeHtml(student.success_score) + '</strong></div>' +
-            '</div><div class="profile-placeholder"><div class="profile-avatar">' +
-            escapeHtml(String(student.student_id || "?").slice(-2)) + '</div><h3>' +
-            escapeHtml(student.student_id) + '</h3><p>' + escapeHtml(student.department || "Department unavailable") +
-            '</p></div>' +
             '<section class="student-insight-section"><span class="panel-kicker">SUCCESS SCORE EXPLANATION</span>' +
             '<p class="insight-intro">Weighted 0–100 score. Each contribution equals the normalized indicator multiplied by its published weight.</p>' +
             '<div class="score-breakdown">' + (breakdownMarkup || '<p class="insight-clear">Score contributions are unavailable.</p>') +

@@ -5637,3 +5637,309 @@ body.reduce-motion *::after {
         padding: 0 8px;
     }
 }
+
+.student-inspector {
+    display: grid;
+    align-content: start;
+    gap: 16px;
+    padding: 18px;
+    border: 1px solid #e7e7ea;
+    border-radius: 20px;
+    color: #252529;
+    background:
+        radial-gradient(circle at 94% 3%, rgba(179, 26, 50, .08), transparent 26%),
+        #fff;
+    box-shadow: 0 18px 50px rgba(20, 20, 24, .08);
+}
+
+.student-inspector .student-detail-back {
+    margin: 0;
+}
+
+.student-inspector .inspector-top {
+    padding: 0 2px;
+}
+
+.student-inspector .inspector-top .live-chip {
+    padding: 7px 10px;
+    border: 1px solid #f0cbd1;
+    border-radius: 999px;
+    color: #a1122a;
+    background: #fff2f4;
+    font-size: 10px;
+    font-weight: 900;
+}
+
+.student-inspector .inspector-top .live-chip.risk-medium {
+    border-color: #f1dfbb;
+    color: #80510a;
+    background: #fff8e9;
+}
+
+.student-profile-hero {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    min-height: 154px;
+    overflow: hidden;
+    padding: 22px;
+    border: 1px solid #29292e;
+    border-radius: 17px;
+    color: #fff;
+    background:
+        radial-gradient(circle at 82% 20%, rgba(237, 51, 79, .35), transparent 36%),
+        linear-gradient(125deg, #19191d, #303035);
+}
+
+.student-profile-hero::after {
+    position: absolute;
+    right: -38px;
+    bottom: -84px;
+    width: 210px;
+    height: 160px;
+    border: 1px solid rgba(255, 255, 255, .1);
+    border-radius: 50%;
+    content: "";
+    pointer-events: none;
+}
+
+.student-profile-identity {
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    min-width: 0;
+}
+
+.student-profile-identity .profile-avatar {
+    flex: 0 0 62px;
+    width: 62px;
+    height: 62px;
+    border: 1px solid rgba(255, 255, 255, .26);
+    border-radius: 18px;
+    color: #fff;
+    background: linear-gradient(145deg, #d5223d, #8f1025);
+    box-shadow: 0 8px 24px rgba(179, 26, 50, .3);
+    font-size: 18px;
+}
+
+.student-profile-copy {
+    min-width: 0;
+}
+
+.student-profile-copy .panel-kicker {
+    color: #f1a4af;
+    font-size: 9px;
+    letter-spacing: .16em;
+}
+
+.student-profile-copy h2 {
+    margin-top: 5px;
+    color: #fff;
+    font-size: clamp(23px, 3vw, 30px);
+    letter-spacing: -.045em;
+}
+
+.student-profile-copy p {
+    margin-top: 3px;
+    color: #c1c1c7;
+    font-size: 12px;
+}
+
+.student-profile-segment {
+    display: inline-flex;
+    margin-top: 11px;
+    padding: 6px 9px;
+    border: 1px solid rgba(255, 255, 255, .15);
+    border-radius: 999px;
+    color: #fff;
+    background: rgba(255, 255, 255, .08);
+    font-size: 10px;
+    font-weight: 750;
+}
+
+.student-profile-score {
+    z-index: 1;
+    display: grid;
+    flex: 0 0 94px;
+    width: 94px;
+    height: 94px;
+    place-items: center;
+    border-radius: 50%;
+    background: conic-gradient(#ed334f var(--profile-score), rgba(255, 255, 255, .15) 0);
+    box-shadow: 0 7px 22px rgba(0, 0, 0, .18);
+}
+
+.student-profile-score > div {
+    display: grid;
+    width: 78px;
+    height: 78px;
+    align-content: center;
+    justify-items: center;
+    gap: 3px;
+    border: 1px solid rgba(255, 255, 255, .1);
+    border-radius: 50%;
+    background: #222226;
+}
+
+.student-profile-score strong {
+    color: #fff;
+    font-size: 23px;
+    line-height: 1;
+}
+
+.student-profile-score span {
+    color: #c8c8cd;
+    font-size: 7px;
+    font-weight: 900;
+    letter-spacing: .08em;
+    line-height: 1.25;
+    text-align: center;
+}
+
+.student-inspector .student-profile-metrics {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 9px;
+}
+
+.student-inspector .student-profile-metrics > div {
+    display: grid;
+    min-width: 0;
+    min-height: 82px;
+    align-content: space-between;
+    gap: 8px;
+    padding: 12px;
+    border: 1px solid #ececef;
+    border-radius: 12px;
+    background: #fafafb;
+}
+
+.student-inspector .student-profile-metrics span {
+    color: #76767e;
+    font-size: 9px;
+    font-weight: 850;
+    letter-spacing: .08em;
+}
+
+.student-inspector .student-profile-metrics strong {
+    color: #252529;
+    font-size: 19px;
+}
+
+.student-inspector .student-profile-metrics strong small {
+    color: #88888f;
+    font-size: 10px;
+    font-weight: 600;
+}
+
+.student-inspector .student-profile-metrics .student-profile-placement {
+    width: fit-content;
+    padding: 5px 7px;
+    border-radius: 6px;
+    color: #a1122a;
+    background: #fff0f2;
+    font-size: 11px;
+}
+
+.student-inspector .student-profile-metrics .student-profile-placement.risk-medium {
+    color: #80510a;
+    background: #fff6e7;
+}
+
+.student-inspector > .student-insight-section {
+    display: grid;
+    gap: 12px;
+    min-width: 0;
+    margin: 0;
+    padding: 17px;
+    border: 1px solid #e9e9ec;
+    border-radius: 14px;
+    background: #fff;
+}
+
+.student-inspector .student-insight-section > .panel-kicker {
+    color: #a1122a;
+    font-size: 9px;
+    letter-spacing: .14em;
+}
+
+.student-inspector .student-graph-section {
+    border-color: #ead3d7;
+    background: linear-gradient(180deg, #fffafa, #fff 40%);
+}
+
+.student-inspector .student-graph-heading h4 {
+    color: #27272b;
+}
+
+.student-inspector .student-analysis-summary > div {
+    background: #fff;
+}
+
+.student-inspector .student-analysis-summary strong {
+    color: #29292d;
+}
+
+.student-inspector .student-graph-note,
+.student-inspector .insight-intro,
+.student-inspector .segment-explanation p {
+    color: #66666d;
+}
+
+.student-inspector .student-indicator-graph {
+    border-color: #ececef;
+    background: #fff;
+}
+
+@media (max-width: 620px) {
+    .student-inspector {
+        gap: 13px;
+        padding: 15px;
+    }
+
+    .student-profile-hero {
+        min-height: 132px;
+        gap: 10px;
+        padding: 15px;
+    }
+
+    .student-profile-identity {
+        gap: 10px;
+    }
+
+    .student-profile-identity .profile-avatar {
+        flex-basis: 50px;
+        width: 50px;
+        height: 50px;
+        border-radius: 15px;
+    }
+
+    .student-profile-score {
+        flex-basis: 76px;
+        width: 76px;
+        height: 76px;
+    }
+
+    .student-profile-score > div {
+        width: 64px;
+        height: 64px;
+    }
+
+    .student-profile-score strong {
+        font-size: 19px;
+    }
+
+    .student-inspector .student-profile-metrics {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .student-inspector > .student-insight-section {
+        padding: 14px;
+    }
+
+    .student-inspector .student-analysis-summary {
+        grid-template-columns: 1fr;
+    }
+}
