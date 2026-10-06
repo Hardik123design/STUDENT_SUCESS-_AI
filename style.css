@@ -6008,7 +6008,7 @@ body.reduce-motion *::after {
     }
 
     .student-inspector .student-analysis-summary {
-        grid-template-columns: repeat(auto-fit, minmax(132px, 1fr));
+        grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
     }
 
     .student-inspector .student-analysis-summary > div {
@@ -6074,6 +6074,10 @@ body.reduce-motion *::after {
     }
 
     .student-inspector .student-analysis-summary {
-        grid-template-columns: 1fr;
+        grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    }
+
+    .student-inspector .student-analysis-summary > div:last-child {
+        grid-column: 1 / -1;
     }
 }
