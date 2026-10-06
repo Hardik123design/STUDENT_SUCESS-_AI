@@ -1,0 +1,763 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Success Dashboard</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="script.js" defer></script>
+</head>
+
+<body>
+
+    <div class="bg-grid"></div>
+    <div class="bg-glow glow-one"></div>
+    <div class="bg-glow glow-two"></div>
+
+    <div class="app">
+
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar" id="sidebar">
+            <div class="brand">
+                <div class="brand-mark">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div>
+                <div class="brand-text">
+                    <strong>StudentSuccess</strong>
+                    <small>Portal</small>
+                </div>
+            </div>
+
+            <div class="nav-label">Menu</div>
+
+            <nav class="main-nav">
+                <button class="nav-item active" data-page="overview" type="button">
+                    <span class="nav-icon">◈</span>
+                    <span>Overview</span>
+                </button>
+                <button class="nav-item" data-page="students" type="button">
+                    <span class="nav-icon">◉</span>
+                    <span>Students</span>
+                </button>
+                <button class="nav-item" data-page="analytics" type="button">
+                    <span class="nav-icon">◒</span>
+                    <span>Analytics</span>
+                </button>
+                <button class="nav-item" data-page="risk" type="button">
+                    <span class="nav-icon">△</span>
+                    <span>Risk Monitor</span>
+                </button>
+                <button class="nav-item" data-page="ai" type="button">
+                    <span class="nav-icon">✦</span>
+                    <span>Predictions</span>
+                </button>
+            </nav>
+
+            <div class="nav-label lower-label">Preferences</div>
+
+            <div class="system-links">
+                <button class="system-link" data-toast="Settings panel coming soon." type="button">
+                    <span>⚙</span> Settings
+                </button>
+                <button class="system-link" data-toast="Help center coming soon." type="button">
+                    <span>?</span> Help Center
+                </button>
+            </div>
+
+            <div class="sidebar-bottom">
+                <div class="connection-card">
+                    <div class="connection-top">
+                        <span class="status-dot"></span>
+                        <span>System Status</span>
+                    </div>
+                    <p>Local build running.</p>
+                </div>
+                <div class="sidebar-version">v1.0.0</div>
+            </div>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="main">
+
+            <!-- Header -->
+            <header class="topbar">
+                <div class="topbar-left">
+                    <button class="mobile-menu" id="mobileMenu" type="button" aria-label="Open menu">
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                    </button>
+
+                    <div class="page-heading">
+                        <span class="mini-breadcrumb">
+                            DASHBOARD / <span id="currentSection">OVERVIEW</span>
+                        </span>
+                        <h1 id="pageTitle">Dashboard Overview</h1>
+                    </div>
+                </div>
+
+                <div class="topbar-actions">
+                    <button class="search-trigger" id="searchTrigger" type="button">
+                        <span class="search-symbol">⌕</span>
+                        <span class="search-text">Search...</span>
+                        <kbd>Ctrl K</kbd>
+                    </button>
+
+                    <button class="icon-button" data-toast="No unread notifications." type="button"
+                        aria-label="Notifications">
+                        ♢
+                    </button>
+
+                    <div class="user-pill">
+                        <div class="user-avatar">AD</div>
+                        <div class="user-info">
+                            <strong>Admin</strong>
+                            <span>Faculty</span>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <div class="page-container">
+
+                <!-- 1. OVERVIEW PAGE -->
+                <section class="page is-active" data-view="overview">
+                    <div class="hero">
+                        <div class="hero-copy">
+                            <div class="eyebrow">
+                                <span class="eyebrow-dot"></span> ACADEMIC TRACKING
+                            </div>
+                            <h2>Monitor student performance & <span>intervene early.</span></h2>
+                            <p>Track attendance, semester grades, assignment submission records, and early alerts in one
+                                unified dashboard.</p>
+
+                            <div class="hero-actions">
+                                <button class="primary-button" data-go-page="ai" type="button">
+                                    <span>View Predictions</span> <b>→</b>
+                                </button>
+                                <button class="secondary-button" data-go-page="analytics" type="button">
+                                    View Reports
+                                </button>
+                            </div>
+
+                            <div class="hero-meta">
+                                <span><i></i> Local server running</span>
+                                <span><i></i> Database pending</span>
+                            </div>
+                        </div>
+
+                        <div class="hero-visual">
+                            <div class="visual-ring ring-one"></div>
+                            <div class="visual-ring ring-two"></div>
+                            <div class="visual-ring ring-three"></div>
+                            <div class="orbit orbit-one"></div>
+                            <div class="orbit orbit-two"></div>
+
+                            <div class="core-card">
+                                <div class="core-top">
+                                    <span>OVERALL STATUS</span>
+                                    <span class="live-chip">ACTIVE</span>
+                                </div>
+                                <div class="core-score">
+                                    <span>--</span>
+                                </div>
+                                <div class="core-label">NO DATA LOADED</div>
+                                <div class="core-bars">
+                                    <div><span></span><b></b></div>
+                                    <div><span></span><b></b></div>
+                                    <div><span></span><b></b></div>
+                                </div>
+                                <div class="core-footer">
+                                    <span>ACADEMICS</span>
+                                    <span>ATTENDANCE</span>
+                                    <span>ALERTS</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Metrics Cards -->
+                    <div class="section-head">
+                        <div>
+                            <span class="section-eyebrow">QUICK STATS</span>
+                            <h3>Current Semester Summary</h3>
+                        </div>
+                        <span class="data-note">Updates automatically on reload</span>
+                    </div>
+
+                    <div class="metric-grid">
+                        <article class="metric-card">
+                            <div class="metric-icon">✦</div>
+                            <div class="metric-content">
+                                <span>AVERAGE GPA / SCORE</span>
+                                <strong>--</strong>
+                                <small>No records found</small>
+                            </div>
+                            <div class="metric-line"></div>
+                        </article>
+
+                        <article class="metric-card">
+                            <div class="metric-icon warning-icon">△</div>
+                            <div class="metric-content">
+                                <span>CRITICAL ALERTS</span>
+                                <strong>--</strong>
+                                <small>No alerts triggered</small>
+                            </div>
+                            <div class="metric-line"></div>
+                        </article>
+
+                        <article class="metric-card">
+                            <div class="metric-icon">◌</div>
+                            <div class="metric-content">
+                                <span>AVG. ATTENDANCE</span>
+                                <strong>--</strong>
+                                <small>Awaiting register data</small>
+                            </div>
+                            <div class="metric-line"></div>
+                        </article>
+
+                        <article class="metric-card">
+                            <div class="metric-icon">◒</div>
+                            <div class="metric-content">
+                                <span>SUBMISSION RATE</span>
+                                <strong>--</strong>
+                                <small>LMS disconnected</small>
+                            </div>
+                            <div class="metric-line"></div>
+                        </article>
+                    </div>
+
+                    <!-- Chart & Risk Queue -->
+                    <div class="dashboard-grid">
+                        <article class="panel trend-panel">
+                            <div class="panel-head">
+                                <div>
+                                    <span class="panel-kicker">SEMESTER PROGRESSION</span>
+                                    <h3>Performance History</h3>
+                                </div>
+                                <button class="ghost-button" data-go-page="analytics" type="button">
+                                    Full Report →
+                                </button>
+                            </div>
+
+                            <div class="chart-area">
+                                <div class="chart-y">
+                                    <span>100</span>
+                                    <span>75</span>
+                                    <span>50</span>
+                                    <span>25</span>
+                                    <span>0</span>
+                                </div>
+                                <div class="chart-stage">
+                                    <div class="chart-grid-lines">
+                                        <span></span>
+                                        <span></span>
+                                        <span></span>
+                                        <span></span>
+                                        <span></span>
+                                    </div>
+                                    <svg class="chart-placeholder" viewBox="0 0 600 220" preserveAspectRatio="none"
+                                        aria-hidden="true">
+                                        <path
+                                            d="M10 185 C100 180, 120 190, 175 155 C225 124, 260 160, 310 120 C360 80, 395 135, 445 92 C495 52, 535 74, 590 32">
+                                        </path>
+                                    </svg>
+                                    <div class="chart-empty">
+                                        <div class="empty-icon">◒</div>
+                                        <strong>No plot data</strong>
+                                        <span>Connect dataset to populate curve.</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="chart-footer">
+                                <span>SEM 1</span>
+                                <span>SEM 2</span>
+                                <span>SEM 3</span>
+                                <span>SEM 4</span>
+                                <span>SEM 5</span>
+                                <span>SEM 6</span>
+                            </div>
+                        </article>
+
+                        <article class="panel risk-panel">
+                            <div class="panel-head">
+                                <div>
+                                    <span class="panel-kicker">ALERTS</span>
+                                    <h3>Action Needed</h3>
+                                </div>
+                                <span class="status-pill">MONITORING</span>
+                            </div>
+
+                            <div class="risk-stack">
+                                <div class="risk-item risk-high">
+                                    <div class="risk-symbol">!</div>
+                                    <div>
+                                        <strong>Critical Risk</strong>
+                                        <span>0 students flagged</span>
+                                    </div>
+                                    <b>0</b>
+                                </div>
+                                <div class="risk-item risk-medium">
+                                    <div class="risk-symbol">!</div>
+                                    <div>
+                                        <strong>Moderate Risk</strong>
+                                        <span>0 students flagged</span>
+                                    </div>
+                                    <b>0</b>
+                                </div>
+                                <div class="risk-item risk-low">
+                                    <div class="risk-symbol">✓</div>
+                                    <div>
+                                        <strong>Good Standing</strong>
+                                        <span>0 students recorded</span>
+                                    </div>
+                                    <b>0</b>
+                                </div>
+                            </div>
+
+                            <button class="wide-button" data-go-page="risk" type="button">
+                                Open Monitoring List <span>→</span>
+                            </button>
+                        </article>
+                    </div>
+
+                    <!-- Priority Table -->
+                    <article class="panel focus-panel">
+                        <div class="panel-head">
+                            <div>
+                                <span class="panel-kicker">DATABASE</span>
+                                <h3>Flagged Students</h3>
+                            </div>
+                            <button class="ghost-button" data-go-page="students" type="button">
+                                View all →
+                            </button>
+                        </div>
+
+                        <div class="table-wrap">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>STUDENT</th>
+                                        <th>SCORE</th>
+                                        <th>ATTENDANCE</th>
+                                        <th>SUBMISSION</th>
+                                        <th>STATUS</th>
+                                        <th>ACTION</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr class="empty-row">
+                                        <td colspan="6">
+                                            <div class="table-empty">
+                                                <div>◎</div>
+                                                <strong>No records to display</strong>
+                                                <span>Import student CSV or connect server database.</span>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </article>
+                </section>
+
+                <!-- 2. STUDENTS PAGE -->
+                <section class="page" data-view="students">
+                    <div class="page-intro">
+                        <div>
+                            <span class="section-eyebrow">DIRECTORY</span>
+                            <h2>Student Records</h2>
+                            <p>Filter, search, and view individual academic files.</p>
+                        </div>
+                        <div class="intro-badge">DISCONNECTED</div>
+                    </div>
+
+                    <div class="student-workspace">
+                        <div class="student-list-panel panel">
+                            <div class="explorer-toolbar">
+                                <div class="input-wrap">
+                                    <span>⌕</span>
+                                    <input id="studentSearch" type="text"
+                                        placeholder="Search by name, roll no, course..." autocomplete="off">
+                                </div>
+                            </div>
+
+                            <div class="filters">
+                                <button class="filter-button active" data-filter="all" type="button">All</button>
+                                <button class="filter-button" data-filter="high" type="button">Critical</button>
+                                <button class="filter-button" data-filter="medium" type="button">Warning</button>
+                                <button class="filter-button" data-filter="stable" type="button">Normal</button>
+                            </div>
+
+                            <div class="student-empty">
+                                <div class="big-empty-icon">◉</div>
+                                <h3>No student data</h3>
+                                <p>Load database records to populate student directory.</p>
+                                <span class="api-contract">Endpoint: /api/students</span>
+                            </div>
+                        </div>
+
+                        <div class="student-inspector panel">
+                            <div class="inspector-top">
+                                <span class="panel-kicker">DETAILS</span>
+                                <span class="live-chip">READY</span>
+                            </div>
+
+                            <div class="profile-placeholder">
+                                <div class="profile-avatar">?</div>
+                                <h3>No selection</h3>
+                                <p>Choose a student entry from the directory to review their semester logs.</p>
+                            </div>
+
+                            <div class="placeholder-stats">
+                                <div><span>GPA</span><strong>--</strong></div>
+                                <div><span>ATTENDANCE</span><strong>--</strong></div>
+                                <div><span>SUBMISSION</span><strong>--</strong></div>
+                                <div><span>STATUS</span><strong>--</strong></div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 3. ANALYTICS PAGE -->
+                <section class="page" data-view="analytics">
+                    <div class="page-intro">
+                        <div>
+                            <span class="section-eyebrow">REPORTS</span>
+                            <h2>Batch Analytics</h2>
+                            <p>Overview of departmental performance and attendance distribution.</p>
+                        </div>
+                        <div class="intro-badge">PENDING</div>
+                    </div>
+
+                    <div class="analytics-grid">
+                        <article class="panel large-chart">
+                            <div class="panel-head">
+                                <div>
+                                    <span class="panel-kicker">CHART</span>
+                                    <h3>Score Trends</h3>
+                                </div>
+                                <button class="ghost-button" data-toast="Filter dialog not set up yet." type="button">
+                                    Date Range
+                                </button>
+                            </div>
+
+                            <div class="analytics-chart">
+                                <div class="chart-grid-lines vertical">
+                                    <span></span><span></span><span></span><span></span><span></span><span></span>
+                                </div>
+                                <div class="analytics-center">
+                                    <div class="empty-icon">◒</div>
+                                    <strong>No chart data</strong>
+                                    <span>Import grades to compute class average curves.</span>
+                                </div>
+                            </div>
+                        </article>
+
+                        <article class="panel signal-panel">
+                            <div class="panel-head">
+                                <div>
+                                    <span class="panel-kicker">FACTORS</span>
+                                    <h3>Weightage Distribution</h3>
+                                </div>
+                            </div>
+
+                            <div class="signal-list">
+                                <div class="signal-row">
+                                    <span>Exam Results</span><strong>--</strong>
+                                </div>
+                                <div class="signal-progress"><span></span></div>
+
+                                <div class="signal-row">
+                                    <span>Lab Attendance</span><strong>--</strong>
+                                </div>
+                                <div class="signal-progress"><span></span></div>
+
+                                <div class="signal-row">
+                                    <span>Assignments</span><strong>--</strong>
+                                </div>
+                                <div class="signal-progress"><span></span></div>
+
+                                <div class="signal-row">
+                                    <span>Project Work</span><strong>--</strong>
+                                </div>
+                                <div class="signal-progress"><span></span></div>
+
+                                <div class="signal-row">
+                                    <span>Class Participation</span><strong>--</strong>
+                                </div>
+                                <div class="signal-progress"><span></span></div>
+                            </div>
+                        </article>
+
+                        <article class="panel segmentation-panel">
+                            <div class="panel-head">
+                                <div>
+                                    <span class="panel-kicker">CATEGORIES</span>
+                                    <h3>Student Groups</h3>
+                                </div>
+                            </div>
+
+                            <div class="segment-grid">
+                                <div class="segment-card">
+                                    <span>Distinction</span><strong>--</strong>
+                                </div>
+                                <div class="segment-card">
+                                    <span>Needs Support</span><strong>--</strong>
+                                </div>
+                                <div class="segment-card">
+                                    <span>Eligible for Placement</span><strong>--</strong>
+                                </div>
+                                <div class="segment-card">
+                                    <span>Attendance Shortage</span><strong>--</strong>
+                                </div>
+                            </div>
+                        </article>
+                    </div>
+                </section>
+
+                <!-- 4. RISK MONITOR PAGE -->
+                <section class="page" data-view="risk">
+                    <div class="page-intro">
+                        <div>
+                            <span class="section-eyebrow">AUDIT</span>
+                            <h2>Risk Assessment</h2>
+                            <p>Identify struggling students before end-of-semester examinations.</p>
+                        </div>
+                        <div class="intro-badge risk-badge">RULES ACTIVE</div>
+                    </div>
+
+                    <div class="risk-dashboard">
+                        <article class="panel risk-overview-card">
+                            <span class="panel-kicker">SUMMARY</span>
+                            <div class="risk-big">0</div>
+                            <p>Students flagged for attendance or assignment shortage</p>
+
+                            <div class="risk-mini-grid">
+                                <div><span>HIGH</span><strong>0</strong></div>
+                                <div><span>MEDIUM</span><strong>0</strong></div>
+                                <div><span>LOW</span><strong>0</strong></div>
+                            </div>
+                        </article>
+
+                        <article class="panel rule-card">
+                            <div class="panel-head">
+                                <div>
+                                    <span class="panel-kicker">CRITERIA</span>
+                                    <h3>Evaluation Factors</h3>
+                                </div>
+                                <span class="live-chip">CONFIGURED</span>
+                            </div>
+
+                            <div class="factor-list">
+                                <div class="factor">
+                                    <span class="factor-number">01</span>
+                                    <div>
+                                        <strong>Internal Marks Decline</strong>
+                                        <p>Consecutive drops across class tests and midterms.</p>
+                                    </div>
+                                </div>
+                                <div class="factor">
+                                    <span class="factor-number">02</span>
+                                    <div>
+                                        <strong>Low Class Attendance</strong>
+                                        <p>Attendance drops below required threshold of 75%.</p>
+                                    </div>
+                                </div>
+                                <div class="factor">
+                                    <span class="factor-number">03</span>
+                                    <div>
+                                        <strong>Missing Submissions</strong>
+                                        <p>Overdue lab records and assignment deadlines.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </article>
+
+                        <article class="panel intervention-card">
+                            <div class="panel-head">
+                                <div>
+                                    <span class="panel-kicker">PROCESS</span>
+                                    <h3>Remedial Workflow</h3>
+                                </div>
+                            </div>
+
+                            <div class="workflow">
+                                <div class="workflow-step">
+                                    <span>01</span>
+                                    <div>
+                                        <strong>Identify</strong>
+                                        <p>System flags scores below threshold.</p>
+                                    </div>
+                                </div>
+                                <div class="workflow-line"></div>
+                                <div class="workflow-step">
+                                    <span>02</span>
+                                    <div>
+                                        <strong>Verify</strong>
+                                        <p>Faculty reviews subject logs.</p>
+                                    </div>
+                                </div>
+                                <div class="workflow-line"></div>
+                                <div class="workflow-step">
+                                    <span>03</span>
+                                    <div>
+                                        <strong>Notify</strong>
+                                        <p>Schedule extra sessions or counseling.</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <button class="primary-button full-button" data-go-page="ai" type="button">
+                                View Suggested Plan <b>→</b>
+                            </button>
+                        </article>
+                    </div>
+                </section>
+
+                <!-- 5. AI / PREDICTIONS PAGE -->
+                <section class="page" data-view="ai">
+                    <div class="ai-header">
+                        <div>
+                            <div class="eyebrow">
+                                <span class="eyebrow-dot"></span> ML CLASSIFICATION
+                            </div>
+                            <h2>Predictive <span>Analysis</span></h2>
+                            <p>Automated score forecasting and remedial suggestion generator.</p>
+                        </div>
+
+                        <div class="ai-status-card">
+                            <span class="status-dot"></span>
+                            <div>
+                                <strong>MODEL STANDBY</strong>
+                                <small>Awaiting input parameters</small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="ai-grid">
+                        <article class="panel ai-main-panel">
+                            <div class="ai-panel-head">
+                                <div class="ai-orb">✦</div>
+                                <div>
+                                    <span class="panel-kicker">OUTPUT CONSOLE</span>
+                                    <h3>Model Predictions</h3>
+                                </div>
+                            </div>
+
+                            <div class="ai-empty">
+                                <div class="ai-wave">
+                                    <span></span><span></span><span></span><span></span>
+                                    <span></span><span></span><span></span><span></span>
+                                </div>
+                                <h3>No query submitted</h3>
+                                <p>Select a student profile or enter parameters below to generate performance
+                                    estimations.</p>
+
+                                <div class="ai-tags">
+                                    <span>Decision Tree</span>
+                                    <span>Logistic Regression</span>
+                                    <span>Attendance Impact</span>
+                                    <span>Performance Forecast</span>
+                                </div>
+                            </div>
+
+                            <div class="ai-input-area">
+                                <input id="aiPrompt" type="text" placeholder="Enter student roll number or query..."
+                                    autocomplete="off">
+                                <button id="aiSend" type="button">→</button>
+                            </div>
+                        </article>
+
+                        <div class="ai-side">
+                            <article class="panel insight-card">
+                                <span class="panel-kicker">MODULE 1</span>
+                                <h3>Early Warning Detection</h3>
+                                <p>Highlight profiles likely to fall short of attendance requirements.</p>
+                                <button class="card-action" data-toast="Connecting to prediction script..."
+                                    type="button">
+                                    Run Check →
+                                </button>
+                            </article>
+
+                            <article class="panel insight-card">
+                                <span class="panel-kicker">MODULE 2</span>
+                                <h3>Score Breakdown</h3>
+                                <p>Analyze how individual midterms and assignments influence final grades.</p>
+                                <button class="card-action" data-toast="Feature requires model training file."
+                                    type="button">
+                                    Analyze →
+                                </button>
+                            </article>
+
+                            <article class="panel insight-card accent-card">
+                                <span class="panel-kicker">MODULE 3</span>
+                                <h3>Remedial Suggestions</h3>
+                                <p>Generate remedial practice topics based on test weak points.</p>
+                                <button class="card-action" data-toast="Remedial engine pending." type="button">
+                                    Generate →
+                                </button>
+                            </article>
+                        </div>
+                    </div>
+                </section>
+
+            </div>
+
+            <!-- Footer -->
+            <footer class="footer">
+                <span>Student Academic Monitoring System</span>
+                <span>B.Tech Project Demo</span>
+                <span id="footerYear">2026</span>
+            </footer>
+
+        </main>
+    </div>
+
+    <!-- Quick Search Dialog -->
+    <div class="modal-backdrop" id="searchModal" aria-hidden="true">
+        <div class="search-modal" role="dialog" aria-modal="true" aria-labelledby="searchModalTitle">
+            <div class="modal-head">
+                <div>
+                    <span class="panel-kicker">NAVIGATION</span>
+                    <h3 id="searchModalTitle">Jump to Page</h3>
+                </div>
+                <button class="modal-close" id="closeSearch" type="button" aria-label="Close search">×</button>
+            </div>
+
+            <div class="modal-search">
+                <span>⌕</span>
+                <input id="globalSearch" type="text" placeholder="Search pages..." autocomplete="off">
+                <kbd>ESC</kbd>
+            </div>
+
+            <div class="search-options">
+                <button data-go-page="students" type="button">
+                    <span>◉</span> Students <b>→</b>
+                </button>
+                <button data-go-page="analytics" type="button">
+                    <span>◒</span> Analytics <b>→</b>
+                </button>
+                <button data-go-page="risk" type="button">
+                    <span>△</span> Risk Monitor <b>→</b>
+                </button>
+                <button data-go-page="ai" type="button">
+                    <span>✦</span> Predictions <b>→</b>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Alert Toast -->
+    <div class="toast" id="toast" role="status" aria-live="polite">
+        <span class="toast-dot"></span>
+        <span id="toastText">Ready</span>
+    </div>
+
+</body>
+
+</html>
