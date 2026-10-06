@@ -3585,3 +3585,553 @@ tbody tr:hover {
 [hidden] {
     display: none !important;
 }
+
+textarea,
+select {
+    font: inherit;
+}
+
+.privacy-notice {
+    margin: 0 0 22px;
+    padding: 14px 17px;
+    border: 1px solid #f0dadd;
+    border-left: 4px solid var(--primary);
+    border-radius: 12px;
+    color: #56565d;
+    background: #fff7f8;
+    font-size: 13px;
+    line-height: 1.65;
+}
+
+.privacy-notice strong {
+    color: #28282d;
+}
+
+.action-summary-grid,
+.data-quality-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 14px;
+    margin-bottom: 18px;
+}
+
+.action-summary-card,
+.data-quality-card {
+    display: grid;
+    gap: 8px;
+    padding: 19px;
+}
+
+.action-summary-card span,
+.data-quality-card > span {
+    color: var(--muted);
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: .12em;
+}
+
+.action-summary-card strong,
+.data-quality-card strong {
+    color: var(--text);
+    font-size: 28px;
+    line-height: 1;
+}
+
+.data-quality-card small {
+    color: var(--muted);
+}
+
+.action-toolbar,
+.data-import-panel {
+    padding: 21px;
+}
+
+.action-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    margin: 0 0 14px;
+}
+
+.action-toolbar h3,
+.learning-board-head h3,
+.learning-form-panel h3,
+.data-import-panel h3 {
+    margin-top: 5px;
+    color: var(--text);
+}
+
+.action-filter-label,
+.action-case-fields label,
+.action-note-label,
+.learning-form label,
+.intervention-followup label {
+    display: grid;
+    gap: 7px;
+    color: #53535a;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.action-filter-label {
+    display: flex;
+    align-items: center;
+}
+
+.action-filter-label select,
+.action-case select,
+.action-case input,
+.action-case textarea,
+.learning-form input,
+.learning-form select,
+.learning-form textarea,
+.intervention-followup select,
+.intervention-followup input,
+.intervention-followup textarea {
+    width: 100%;
+    min-height: 42px;
+    padding: 10px 12px;
+    border: 1px solid var(--border);
+    border-radius: 9px;
+    color: var(--text);
+    background: #fafafa;
+    outline: none;
+}
+
+.action-filter-label select {
+    width: auto;
+    margin-left: 8px;
+}
+
+.action-case-list {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-items: start;
+    gap: 14px;
+}
+
+.action-case {
+    display: grid;
+    gap: 14px;
+    padding: 19px;
+}
+
+.action-case-heading,
+.action-case-footer,
+.learning-board-head,
+.learning-post-top,
+.learning-post-footer,
+.panel-head,
+.csv-import-actions {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.action-case-heading h3 {
+    margin-top: 5px;
+    color: var(--text);
+}
+
+.action-case-recommendation {
+    color: var(--muted);
+    font-size: 13px;
+    line-height: 1.6;
+}
+
+.action-case-fields {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+}
+
+.action-case-footer small,
+.followup-updated {
+    color: var(--muted);
+    font-size: 11px;
+}
+
+.action-empty {
+    display: grid;
+    gap: 8px;
+    padding: 22px;
+    color: var(--text);
+}
+
+.action-empty span {
+    color: var(--muted);
+}
+
+.learning-layout {
+    display: grid;
+    grid-template-columns: minmax(260px, .8fr) minmax(0, 1.4fr);
+    align-items: start;
+    gap: 18px;
+}
+
+.learning-form-panel,
+.learning-board {
+    padding: 22px;
+}
+
+.learning-form-panel h3 {
+    margin-bottom: 20px;
+}
+
+.learning-form {
+    display: grid;
+    gap: 12px;
+}
+
+.learning-form label span,
+.intervention-followup label span {
+    color: var(--muted);
+    font-weight: 400;
+}
+
+.learning-form textarea,
+.action-case textarea,
+.intervention-followup textarea {
+    min-height: 76px;
+    resize: vertical;
+}
+
+.learning-form .primary-button {
+    width: 100%;
+    justify-content: center;
+    margin-top: 5px;
+}
+
+.learning-board-head {
+    align-items: flex-start;
+    margin-bottom: 18px;
+}
+
+.live-chip {
+    flex-shrink: 0;
+}
+
+.learning-filters {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 14px;
+}
+
+.learning-filter {
+    padding: 8px 12px;
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    color: #55555c;
+    background: #fafafa;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.learning-filter.active {
+    border-color: #eab5bf;
+    color: var(--primary);
+    background: #fff0f2;
+}
+
+.learning-post-list {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+}
+
+.learning-post {
+    display: flex;
+    min-height: 195px;
+    flex-direction: column;
+    gap: 12px;
+    padding: 16px;
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    background: #fff;
+}
+
+.learning-offer {
+    border-top: 3px solid #b31a32;
+}
+
+.learning-request {
+    border-top: 3px solid #29292e;
+}
+
+.learning-kind {
+    color: var(--primary);
+    font-size: 10px;
+    font-weight: 900;
+    letter-spacing: .1em;
+}
+
+.learning-request .learning-kind {
+    color: #333339;
+}
+
+.learning-mode,
+.learning-post-footer > span,
+.learning-peer-only {
+    color: var(--muted);
+    font-size: 10px;
+}
+
+.learning-post h4 {
+    color: var(--text);
+    font-size: 16px;
+}
+
+.learning-post > p {
+    flex: 1;
+    color: var(--muted);
+    font-size: 12px;
+    line-height: 1.55;
+}
+
+.learning-post-footer {
+    flex-wrap: wrap;
+    padding-top: 10px;
+    border-top: 1px solid var(--border);
+}
+
+.interest-button {
+    padding: 8px 10px;
+    border-radius: 8px;
+    color: #fff;
+    background: #19191c;
+    font-size: 11px;
+    font-weight: 700;
+}
+
+.interest-button:hover {
+    background: var(--primary);
+}
+
+.data-import-panel {
+    margin-bottom: 18px;
+}
+
+.data-import-panel > .panel-head {
+    margin-bottom: 18px;
+}
+
+.csv-dropzone {
+    display: grid;
+    justify-items: center;
+    gap: 9px;
+    padding: 28px;
+    border: 1px dashed #d6aab1;
+    border-radius: 14px;
+    color: var(--text);
+    background: #fffafb;
+    text-align: center;
+    transition: background .2s, border-color .2s;
+}
+
+.csv-dropzone.is-dragging {
+    border-color: var(--primary);
+    background: #fff0f2;
+}
+
+.csv-drop-icon {
+    display: grid;
+    width: 42px;
+    height: 42px;
+    place-items: center;
+    border-radius: 12px;
+    color: #fff;
+    background: var(--primary);
+    font-size: 22px;
+}
+
+.csv-dropzone > span:not(.csv-drop-icon) {
+    max-width: 640px;
+    color: var(--muted);
+    font-size: 12px;
+    line-height: 1.5;
+}
+
+#studentCsvFile {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+}
+
+.csv-file-label {
+    cursor: pointer;
+}
+
+#csvFileName {
+    color: var(--muted);
+    font-size: 11px;
+}
+
+.csv-report {
+    margin-top: 16px;
+}
+
+.csv-report-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 10px;
+    margin-bottom: 12px;
+}
+
+.csv-report-grid > div {
+    display: grid;
+    gap: 5px;
+    padding: 12px;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    background: #fafafa;
+}
+
+.csv-report-grid strong {
+    color: var(--text);
+    font-size: 20px;
+}
+
+.csv-report-grid span,
+.csv-valid,
+.csv-invalid,
+.csv-errors {
+    font-size: 11px;
+}
+
+.csv-report-grid span {
+    color: var(--muted);
+    font-weight: 800;
+    letter-spacing: .05em;
+}
+
+.csv-valid {
+    color: #287143;
+    font-weight: 700;
+}
+
+.csv-invalid,
+.csv-errors {
+    color: #a5112b;
+}
+
+.csv-errors {
+    display: grid;
+    gap: 4px;
+    margin-top: 9px;
+    padding-left: 20px;
+}
+
+.csv-preview {
+    display: grid;
+    gap: 10px;
+    margin-top: 17px;
+    color: var(--text);
+}
+
+.csv-import-actions {
+    justify-content: flex-start;
+    flex-wrap: wrap;
+    margin-top: 18px;
+}
+
+.csv-import-actions button:disabled {
+    opacity: .48;
+    cursor: not-allowed;
+}
+
+.profile-metric-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 9px;
+    margin-top: 12px;
+}
+
+.profile-metric-grid > div,
+.comparison-row {
+    display: grid;
+    gap: 5px;
+    padding: 11px;
+    border: 1px solid var(--border);
+    border-radius: 9px;
+    background: #fafafa;
+}
+
+.profile-metric-grid span,
+.comparison-row span,
+.comparison-row small {
+    color: var(--muted);
+    font-size: 10px;
+}
+
+.profile-metric-grid strong,
+.comparison-row strong {
+    color: var(--text);
+    font-size: 14px;
+}
+
+.comparison-list {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+}
+
+.intervention-followup {
+    display: grid;
+    gap: 9px;
+}
+
+.intervention-followup .secondary-button {
+    justify-self: start;
+}
+
+.csv-import-actions .primary-button:disabled {
+    color: #fff;
+}
+
+@media (max-width: 900px) {
+    .action-case-list,
+    .learning-layout {
+        grid-template-columns: 1fr;
+    }
+
+    .learning-board {
+        min-width: 0;
+    }
+}
+
+@media (max-width: 600px) {
+    .action-summary-grid,
+    .data-quality-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .action-toolbar,
+    .data-import-panel > .panel-head {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .action-toolbar .action-filter-label {
+        flex-wrap: wrap;
+    }
+
+    .action-case-fields,
+    .learning-post-list,
+    .comparison-list,
+    .profile-metric-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .csv-dropzone {
+        padding: 20px 14px;
+    }
+
+    .csv-report-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}

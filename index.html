@@ -5,8 +5,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Student Success Dashboard</title>
-    <link rel="stylesheet" href="style.css?v=20261006-action-center">
-    <script src="script.js?v=20261006-action-center" defer></script>
+    <link rel="stylesheet" href="style.css?v=20261006-feature-suite">
+    <script src="script.js?v=20261006-feature-suite" defer></script>
 </head>
 
 <body>
@@ -53,6 +53,18 @@
                 <button class="nav-item" data-page="ai" type="button">
                     <span class="nav-icon">✦</span>
                     <span>Predictions</span>
+                </button>
+                <button class="nav-item" data-page="actions" type="button">
+                    <span class="nav-icon">✓</span>
+                    <span>Action Center</span>
+                </button>
+                <button class="nav-item" data-page="learning" type="button">
+                    <span class="nav-icon">↗</span>
+                    <span>Peer Learning</span>
+                </button>
+                <button class="nav-item" data-page="data" type="button">
+                    <span class="nav-icon">▤</span>
+                    <span>Data Lab</span>
                 </button>
             </nav>
 
@@ -715,6 +727,144 @@
                             </article>
                         </div>
                     </div>
+                </section>
+
+                <section class="page" data-view="actions">
+                    <div class="page-intro">
+                        <div>
+                            <span class="section-eyebrow">FACULTY WORKSPACE</span>
+                            <h2>Intervention Action Center</h2>
+                            <p>Track follow-up steps for students with academic or placement support flags.</p>
+                        </div>
+                        <div class="intro-badge risk-badge">BROWSER-ONLY DEMO</div>
+                    </div>
+                    <div class="privacy-notice">
+                        <strong>Demo privacy:</strong> Updates are saved only in this browser. There is no sign-in or
+                        shared staff access. Use synthetic data and avoid sensitive personal notes.
+                    </div>
+                    <div class="action-summary-grid">
+                        <article class="panel action-summary-card">
+                            <span>OPEN SUPPORT CASES</span><strong id="actionOpenCount">--</strong>
+                        </article>
+                        <article class="panel action-summary-card">
+                            <span>FOLLOW-UPS DUE</span><strong id="actionDueCount">--</strong>
+                        </article>
+                        <article class="panel action-summary-card">
+                            <span>RESOLVED</span><strong id="actionResolvedCount">--</strong>
+                        </article>
+                    </div>
+                    <div class="action-toolbar panel">
+                        <div>
+                            <span class="panel-kicker">CASE QUEUE</span>
+                            <h3>Plan, follow up, review</h3>
+                        </div>
+                        <label class="action-filter-label" for="actionStatusFilter">Show
+                            <select id="actionStatusFilter">
+                                <option value="open">Open cases</option>
+                                <option value="all">All cases</option>
+                                <option value="resolved">Resolved</option>
+                            </select>
+                        </label>
+                    </div>
+                    <div class="action-case-list" id="actionCaseList" aria-live="polite">
+                        <p class="insight-loading">Loading support cases…</p>
+                    </div>
+                </section>
+
+                <section class="page" data-view="learning">
+                    <div class="page-intro">
+                        <div>
+                            <span class="section-eyebrow">SKILLS, SHARED</span>
+                            <h2>Peer Learning Exchange</h2>
+                            <p>Connect classmates who can teach a skill with peers who want to learn it.</p>
+                        </div>
+                        <div class="intro-badge risk-badge">BROWSER-ONLY DEMO</div>
+                    </div>
+                    <div class="privacy-notice">
+                        Post with a nickname only. This demo has no accounts, moderation, or shared server; posts stay
+                        in this browser. Do not share contact details or sensitive information.
+                    </div>
+                    <div class="learning-layout">
+                        <article class="panel learning-form-panel">
+                            <span class="panel-kicker">START A LEARNING CONNECTION</span>
+                            <h3>Teach something. Learn something.</h3>
+                            <form id="learningPostForm" class="learning-form">
+                                <label for="learningAlias">Display name or nickname</label>
+                                <input id="learningAlias" name="alias" maxlength="32" required
+                                    placeholder="e.g. Code buddy">
+                                <label for="learningIntent">I want to…</label>
+                                <select id="learningIntent" name="intent">
+                                    <option value="teach">Offer to teach a skill</option>
+                                    <option value="learn">Ask to learn a skill</option>
+                                </select>
+                                <label for="learningTopic">Skill or topic</label>
+                                <input id="learningTopic" name="topic" maxlength="48" required
+                                    placeholder="e.g. Python, interview practice">
+                                <label for="learningDetails">What would help? <span>Optional</span></label>
+                                <textarea id="learningDetails" name="details" maxlength="180" rows="3"
+                                    placeholder="Share a short goal or what a session could cover."></textarea>
+                                <label for="learningMode">Preferred format</label>
+                                <select id="learningMode" name="mode">
+                                    <option>In-person group</option>
+                                    <option>Online group</option>
+                                    <option>Either</option>
+                                </select>
+                                <button class="primary-button" type="submit">Post to exchange <b>→</b></button>
+                            </form>
+                        </article>
+                        <div class="learning-board">
+                            <div class="learning-board-head">
+                                <div><span class="panel-kicker">COMMUNITY BOARD</span><h3>Find your next study buddy</h3></div>
+                                <span class="live-chip">SYNTHETIC EXAMPLES</span>
+                            </div>
+                            <div class="learning-filters" role="group" aria-label="Filter peer learning posts">
+                                <button class="learning-filter active" type="button" data-learning-filter="all">All</button>
+                                <button class="learning-filter" type="button" data-learning-filter="teach">Can teach</button>
+                                <button class="learning-filter" type="button" data-learning-filter="learn">Want to learn</button>
+                            </div>
+                            <div class="learning-post-list" id="learningPostList" aria-live="polite"></div>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="page" data-view="data">
+                    <div class="page-intro">
+                        <div>
+                            <span class="section-eyebrow">DATA QUALITY & IMPORT</span>
+                            <h2>Data Lab</h2>
+                            <p>Check a CSV before using its records in this browser’s dashboard.</p>
+                        </div>
+                        <div class="intro-badge" id="dataLabBadge">BACKEND DATA</div>
+                    </div>
+                    <div class="privacy-notice">
+                        CSV files are validated and processed locally in your browser. They are not uploaded. Importing
+                        replaces the current view for this session only; refreshing restores backend data. Use approved
+                        demo data only.
+                    </div>
+                    <article class="panel data-import-panel">
+                        <div class="panel-head">
+                            <div><span class="panel-kicker">CSV WORKFLOW</span><h3>Upload · validate · preview · import</h3></div>
+                            <button class="ghost-button" id="downloadCsvTemplate" type="button">Download template ↓</button>
+                        </div>
+                        <div class="csv-dropzone" id="csvDropzone">
+                            <span class="csv-drop-icon">▤</span>
+                            <strong>Choose a student CSV</strong>
+                            <span>Required: student_id, department, CGPA, attendance, LMS, engagement, coding, skills, placement, feedback</span>
+                            <label class="secondary-button csv-file-label" for="studentCsvFile">Choose CSV file</label>
+                            <input id="studentCsvFile" type="file" accept=".csv,text/csv">
+                            <p id="csvFileName">No file selected</p>
+                        </div>
+                        <div class="csv-report" id="csvQualityReport" aria-live="polite">
+                            <p class="insight-loading">Select a CSV to check missing fields, invalid values, and duplicate student IDs.</p>
+                        </div>
+                        <div class="csv-preview" id="csvPreview" hidden></div>
+                        <div class="csv-import-actions">
+                            <button class="primary-button" id="applyCsvImport" type="button" disabled>Use validated file for this session <b>→</b></button>
+                            <button class="ghost-button" id="restoreBackendData" type="button" hidden>Restore backend records</button>
+                        </div>
+                        <p class="scenario-disclaimer">Score and risk indicators are recalculated with the dashboard’s published rules. A file import does not create semester history or connect external systems.</p>
+                    </article>
+                    <div class="data-quality-grid" id="dataQualityCards"></div>
                 </section>
 
             </div>

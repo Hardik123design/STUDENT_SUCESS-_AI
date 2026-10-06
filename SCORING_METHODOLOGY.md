@@ -80,3 +80,14 @@ historical outcomes, train or validate a predictive model, establish causality,
 or integrate live college systems. Scores and thresholds should be reviewed
 with faculty and calibrated against institution-specific outcomes before
 operational use.
+
+## Demo workspace features and data handling
+
+The dashboard can validate and preview a CSV containing the required student
+indicators, then recalculate the same score, risk bands, and support segments
+for the current browser session. Imported student rows are not uploaded or
+persisted; refreshing restores the API dataset. Intervention follow-up entries
+and peer-learning posts use this browser's local storage only. They are not
+shared with other staff, authenticated, backed up, or suitable for sensitive
+student records. Use fictional demo data until secure, authorized storage and
+access controls are implemented.

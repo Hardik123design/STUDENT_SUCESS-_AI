@@ -26,9 +26,24 @@ document.addEventListener("DOMContentLoaded", function () {
         students: { title: "Student Records", label: "STUDENTS" },
         analytics: { title: "Batch Analytics", label: "ANALYTICS" },
         risk: { title: "Risk Assessment", label: "RISK" },
-        ai: { title: "Predictive Analysis", label: "PREDICTIONS" }
+        ai: { title: "Predictive Analysis", label: "PREDICTIONS" },
+        actions: { title: "Intervention Action Center", label: "ACTION CENTER" },
+        learning: { title: "Peer Learning Exchange", label: "PEER LEARNING" },
+        data: { title: "Data Lab", label: "DATA LAB" }
     };
+    const ACTION_STORAGE_KEY = "studentSuccessDemo.actions.v1";
+    const LEARNING_STORAGE_KEY = "studentSuccessDemo.learning.v1";
+    const demoLearningPosts = [
+        { id: "demo-python", alias: "Code buddy", intent: "teach", topic: "Python basics", details: "Happy to help with loops, functions, and a small first project.", mode: "Online group", demo: true, interested: false },
+        { id: "demo-interview", alias: "Future ready", intent: "learn", topic: "Interview practice", details: "Looking for a friendly peer to practise common placement questions.", mode: "In-person group", demo: true, interested: false },
+        { id: "demo-design", alias: "Creative corner", intent: "teach", topic: "Canva & presentation design", details: "Can show simple ways to make clear, polished project slides.", mode: "Either", demo: true, interested: false }
+    ];
     let students = [];
+    let backendStudents = [];
+    let importedDataset = false;
+    let interventionRecords = {};
+    let learningPosts = demoLearningPosts.slice();
+    let learningFilter = "all";
     let activeFilter = "all";
     let activeSegment = "";
     let toastTimer = null;
@@ -55,6 +70,41 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 
+    function readLocalRecords(key, fallback, validator) {
+        try {
+            const raw = window.localStorage.getItem(key);
+            if (!raw) return fallback;
+            const parsed = JSON.parse(raw);
+            if (!validator(parsed)) throw new Error("Saved demo data has an unexpected format.");
+            return parsed;
+        } catch (error) {
+            showNotification("Browser-only demo data could not be read: " + error.message);
+            return fallback;
+        }
+    }
+
+    function saveLocalRecords(key, value) {
+        try {
+            window.localStorage.setItem(key, JSON.stringify(value));
+            return true;
+        } catch (error) {
+            showNotification("Could not save this demo update in this browser: " + error.message);
+            return false;
+        }
+    }
+
+    interventionRecords = Object.assign(Object.create(null),
+        readLocalRecords(ACTION_STORAGE_KEY, {}, function (value) {
+        return value !== null && typeof value === "object" && !Array.isArray(value);
+        }));
+    learningPosts = readLocalRecords(LEARNING_STORAGE_KEY, demoLearningPosts.slice(), function (value) {
+        return Array.isArray(value) && value.every(function (post) {
+            return post && typeof post.id === "string" &&
+                ["teach", "learn"].includes(post.intent) &&
+                typeof post.alias === "string" && typeof post.topic === "string";
+        });
+    });
+
     async function apiRequest(path) {
         const response = await fetch(API_BASE_URL + path, {
             headers: { Accept: "application/json" }
@@ -76,8 +126,12 @@ document.addEventListener("DOMContentLoaded", function () {
             badge.classList.toggle("is-connected", connected);
         });
         document.querySelectorAll(".hero-meta span").forEach(function (item, index) {
-            if (index === 0) item.lastChild.textContent = connected ? " Backend connected" : " Backend offline";
-            if (index === 1) item.lastChild.textContent = connected ? " Live student data" : " Data unavailable";
+            if (index === 0) item.lastChild.textContent = importedDataset
+                ? " Session CSV active"
+                : connected ? " Backend connected" : " Backend offline";
+            if (index === 1) item.lastChild.textContent = importedDataset
+                ? " Not uploaded"
+                : connected ? " Live student data" : " Data unavailable";
         });
     }
 
@@ -265,6 +319,36 @@ document.addEventListener("DOMContentLoaded", function () {
                 initialIncrease + '"></label>';
         }).join("");
         const currentScore = Number(student.success_score) || 0;
+        const currentIntervention = interventionRecords[String(student.student_id)] || {};
+        const studentPeers = students.filter(function (candidate) {
+            return String(candidate.department || "") === String(student.department || "");
+        });
+        const comparisons = [
+            { label: "Success score", key: "success_score", suffix: " pts" },
+            { label: "CGPA", key: "cgpa", suffix: "" },
+            { label: "Attendance", key: "attendance", suffix: "%" },
+            { label: "Placement readiness", key: "placement_score", suffix: " pts" }
+        ].map(function (metric) {
+            const average = studentPeers.length ? studentPeers.reduce(function (sum, peer) {
+                return sum + (Number(peer[metric.key]) || 0);
+            }, 0) / studentPeers.length : 0;
+            const difference = (Number(student[metric.key]) || 0) - average;
+            return '<div class="comparison-row"><span>' + escapeHtml(metric.label) +
+                '</span><strong>' + (difference >= 0 ? "+" : "") + difference.toFixed(1) +
+                escapeHtml(metric.suffix) + '</strong><small>vs department avg. ' +
+                average.toFixed(1) + escapeHtml(metric.suffix) + '</small></div>';
+        }).join("");
+        const detailedMetrics = [
+            ["LMS activity", student.lms_score, "/100"],
+            ["Engagement", student.engagement, "/100"],
+            ["Coding", student.coding_score, "/100"],
+            ["Skills", student.skills_score, "/100"],
+            ["Placement readiness", student.placement_score, "/100"],
+            ["Feedback", student.feedback_score, "/100"]
+        ].map(function (metric) {
+            return '<div><span>' + escapeHtml(metric[0]) + '</span><strong>' +
+                escapeHtml(metric[1]) + escapeHtml(metric[2]) + '</strong></div>';
+        }).join("");
         const initialLift = scenarioAdjustments.reduce(function (sum, adjustment) {
             return sum + adjustment.increase * adjustment.multiplier * adjustment.weight;
         }, 0);
@@ -310,7 +394,29 @@ document.addEventListener("DOMContentLoaded", function () {
             escapeHtml(student.recommended_action || "Review the student record with faculty.") +
             '</p><strong>Placement risk</strong><p>' + escapeHtml(student.placement_risk || "Unavailable") +
             ' · placement score ' + escapeHtml(student.placement_score) + ', coding score ' +
-            escapeHtml(student.coding_score) + '</p></section><section class="student-insight-section scenario-section">' +
+            escapeHtml(student.coding_score) + '</p></section><section class="student-insight-section">' +
+            '<span class="panel-kicker">INDICATOR PROFILE</span><div class="profile-metric-grid">' +
+            detailedMetrics + '</div></section><section class="student-insight-section">' +
+            '<span class="panel-kicker">DEPARTMENT CONTEXT</span><p class="insight-intro">' +
+            escapeHtml(studentPeers.length) + ' student records in this department. Positive values are above the current cohort average; this is not a historical trend.</p>' +
+            '<div class="comparison-list">' + comparisons + '</div></section>' +
+            '<section class="student-insight-section intervention-followup"><span class="panel-kicker">FACULTY FOLLOW-UP · BROWSER-ONLY</span>' +
+            '<label for="followupStatus">Case status</label><select id="followupStatus" data-followup-student="' +
+            escapeHtml(student.student_id) + '"><option value="Not started"' +
+            (currentIntervention.status === "Not started" || !currentIntervention.status ? " selected" : "") +
+            '>Not started</option><option value="Contacted"' +
+            (currentIntervention.status === "Contacted" ? " selected" : "") +
+            '>Contacted</option><option value="In progress"' +
+            (currentIntervention.status === "In progress" ? " selected" : "") +
+            '>In progress</option><option value="Resolved"' +
+            (currentIntervention.status === "Resolved" ? " selected" : "") +
+            '>Resolved</option></select><label for="followupDate">Follow-up date</label><input id="followupDate" type="date" value="' +
+            escapeHtml(currentIntervention.dueDate || "") + '"><label for="followupNote">Brief non-sensitive note <span>(max 240 characters)</span></label>' +
+            '<textarea id="followupNote" maxlength="240" rows="3" placeholder="Record a short next step; do not include private details.">' +
+            escapeHtml(currentIntervention.note || "") + '</textarea><button class="secondary-button" id="saveStudentFollowup" type="button">Save follow-up</button>' +
+            '<small class="followup-updated">' + (currentIntervention.updatedAt ?
+                "Last updated " + escapeHtml(new Date(currentIntervention.updatedAt).toLocaleString()) :
+                "No follow-up saved yet") + '</small></section><section class="student-insight-section scenario-section">' +
             '<span class="panel-kicker">WHAT-IF PLANNING SANDBOX</span><p class="insight-intro">Starter targets are editable examples. Explore the weighted-score arithmetic if proposed gains are achieved.</p>' +
             '<div class="scenario-controls">' + (scenarioInputs || '<p class="insight-clear">Scenario factors are unavailable for this student.</p>') +
             '</div><div class="scenario-result"><div><span>ILLUSTRATIVE SCORE</span><strong id="scenarioScore">' +
@@ -352,6 +458,27 @@ document.addEventListener("DOMContentLoaded", function () {
                 });
             });
         }
+        const saveFollowup = inspector.querySelector("#saveStudentFollowup");
+        if (saveFollowup) saveFollowup.addEventListener("click", function () {
+            const status = inspector.querySelector("#followupStatus").value;
+            const dueDate = inspector.querySelector("#followupDate").value;
+            const note = inspector.querySelector("#followupNote").value.trim();
+            if (dueDate && !/^\d{4}-\d{2}-\d{2}$/.test(dueDate)) {
+                showNotification("Choose a valid follow-up date.");
+                return;
+            }
+            interventionRecords[String(student.student_id)] = {
+                status: status,
+                dueDate: dueDate,
+                note: note,
+                updatedAt: new Date().toISOString()
+            };
+            if (saveLocalRecords(ACTION_STORAGE_KEY, interventionRecords)) {
+                renderStudentDetails(student);
+                renderActionCenter();
+                showNotification("Follow-up saved in this browser.");
+            }
+        });
     }
 
     function renderPriorityTable() {
@@ -505,7 +632,7 @@ document.addEventListener("DOMContentLoaded", function () {
         const coreLabel = document.querySelector(".core-label");
         if (coreLabel) coreLabel.textContent = "AVERAGE SUCCESS SCORE";
         const coreChip = document.querySelector(".core-top .live-chip");
-        if (coreChip) coreChip.textContent = "LIVE DATA";
+        if (coreChip) coreChip.textContent = importedDataset ? "SESSION CSV" : "LIVE DATA";
         const historyChart = document.querySelector(".chart-placeholder");
         if (historyChart) historyChart.setAttribute("hidden", "");
     }
@@ -555,11 +682,9 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     }
 
-    async function loadSegmentAnalytics() {
+    function renderSegmentCards(segments) {
         const container = document.getElementById("segmentGrid");
         if (!container) return;
-        const segments = await apiRequest("/analytics/segments");
-        if (!Array.isArray(segments)) throw new Error("Student segments returned an unexpected response.");
         container.innerHTML = segments.map(function (segment) {
             return '<button class="segment-card" type="button" data-segment="' +
                 escapeHtml(segment.segment) + '"><span>' + escapeHtml(segment.label) +
@@ -581,6 +706,409 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 
+    async function loadSegmentAnalytics() {
+        const segments = await apiRequest("/analytics/segments");
+        if (!Array.isArray(segments)) throw new Error("Student segments returned an unexpected response.");
+        renderSegmentCards(segments);
+    }
+
+    function makeLocalSummary(records) {
+        const high = records.filter(function (student) { return student.risk === "HIGH"; }).length;
+        const medium = records.filter(function (student) { return student.risk === "MEDIUM"; }).length;
+        const low = records.filter(function (student) { return student.risk === "LOW"; }).length;
+        const average = records.length ? records.reduce(function (sum, student) {
+            return sum + Number(student.success_score || 0);
+        }, 0) / records.length : 0;
+        return {
+            total_students: records.length,
+            high_risk_students: high,
+            medium_risk_students: medium,
+            low_risk_students: low,
+            placement_risk_students: records.filter(function (student) {
+                return ["HIGH", "MEDIUM"].includes(student.placement_risk);
+            }).length,
+            average_success_score: Number(average.toFixed(2))
+        };
+    }
+
+    function renderLocalAnalytics() {
+        const departmentMap = Object.create(null);
+        const segmentMap = Object.create(null);
+        students.forEach(function (student) {
+            const department = String(student.department || "Unspecified");
+            if (!departmentMap[department]) departmentMap[department] = { count: 0, score: 0 };
+            departmentMap[department].count += 1;
+            departmentMap[department].score += Number(student.success_score) || 0;
+            const segmentKey = student.segment || "unclassified";
+            if (!segmentMap[segmentKey]) {
+                segmentMap[segmentKey] = {
+                    segment: segmentKey,
+                    label: student.segment_label || "Unclassified",
+                    description: student.segment_description || "",
+                    student_count: 0,
+                    score: 0
+                };
+            }
+            segmentMap[segmentKey].student_count += 1;
+            segmentMap[segmentKey].score += Number(student.success_score) || 0;
+        });
+        const departments = Object.keys(departmentMap).map(function (name) {
+            const summary = departmentMap[name];
+            return {
+                department: name,
+                total_students: summary.count,
+                average_success_score: summary.score / summary.count
+            };
+        });
+        renderDepartmentChart(departments);
+        const segments = Object.keys(segmentMap).map(function (key) {
+            const segment = segmentMap[key];
+            return Object.assign({}, segment, {
+                average_success_score: (segment.score / segment.student_count).toFixed(1)
+            });
+        });
+        renderSegmentCards(segments);
+        renderDataQualitySummary();
+    }
+
+    function renderDepartmentChart(departments) {
+        const chart = document.getElementById("departmentAnalytics");
+        if (!chart) return;
+        if (!departments.length) {
+            chart.innerHTML = "<strong>No department records found</strong>";
+            return;
+        }
+        const maxScore = Math.max.apply(null, departments.map(function (department) {
+            return Number(department.average_success_score) || 0;
+        })) || 1;
+        chart.innerHTML = '<div class="department-bars">' + departments.map(function (department) {
+            const score = Number(department.average_success_score) || 0;
+            return '<div class="department-bar"><span>' + escapeHtml(department.department) + '</span>' +
+                '<div><i style="height:' + Math.max(5, score / maxScore * 100) + '%"></i></div>' +
+                '<strong>' + score.toFixed(1) + '</strong><small>' +
+                escapeHtml(department.total_students) + ' students</small></div>';
+        }).join("") + '</div>';
+    }
+
+    function renderDataQualitySummary() {
+        const container = document.getElementById("dataQualityCards");
+        if (!container) return;
+        const avgAttendance = students.length ? students.reduce(function (sum, student) {
+            return sum + (Number(student.attendance) || 0);
+        }, 0) / students.length : 0;
+        const missingMetrics = students.reduce(function (count, student) {
+            return count + ["cgpa", "attendance", "lms_score", "engagement", "coding_score",
+                "skills_score", "placement_score", "feedback_score"].filter(function (key) {
+                return student[key] == null || student[key] === "";
+            }).length;
+        }, 0);
+        container.innerHTML =
+            '<article class="panel data-quality-card"><span>RECORDS IN VIEW</span><strong>' + students.length +
+            '</strong><small>' + (importedDataset ? "Session-only CSV data" : "Connected backend dataset") +
+            '</small></article><article class="panel data-quality-card"><span>EMPTY INDICATORS</span><strong>' +
+            missingMetrics + '</strong><small>Across eight scored factors</small></article>' +
+            '<article class="panel data-quality-card"><span>MEAN ATTENDANCE</span><strong>' +
+            avgAttendance.toFixed(1) + '%</strong><small>Calculated from current view</small></article>';
+    }
+
+    function renderActionCenter() {
+        const caseList = document.getElementById("actionCaseList");
+        const filter = document.getElementById("actionStatusFilter");
+        if (!caseList) return;
+        const cases = getInterventionCandidates();
+        const resolved = cases.filter(function (student) {
+            return interventionRecords[String(student.student_id)] &&
+                interventionRecords[String(student.student_id)].status === "Resolved";
+        });
+        const open = cases.filter(function (student) {
+            return !resolved.includes(student);
+        });
+        const today = new Date().toISOString().slice(0, 10);
+        const due = open.filter(function (student) {
+            const record = interventionRecords[String(student.student_id)] || {};
+            return record.dueDate && record.dueDate <= today;
+        });
+        setText("actionOpenCount", open.length);
+        setText("actionDueCount", due.length);
+        setText("actionResolvedCount", resolved.length);
+        const mode = filter ? filter.value : "open";
+        const visible = cases.filter(function (student) {
+            const isResolved = resolved.includes(student);
+            return mode === "all" || (mode === "resolved" ? isResolved : !isResolved);
+        });
+        caseList.innerHTML = visible.length ? visible.map(function (student) {
+            const id = String(student.student_id);
+            const record = interventionRecords[id] || {};
+            const riskTypes = [];
+            if (["HIGH", "MEDIUM"].includes(student.risk)) riskTypes.push("Academic " + student.risk);
+            if (["HIGH", "MEDIUM"].includes(student.placement_risk)) riskTypes.push("Placement " + student.placement_risk);
+            return '<article class="panel action-case" data-case-id="' + escapeHtml(id) + '">' +
+                '<div class="action-case-heading"><div><span class="panel-kicker">' +
+                escapeHtml(student.department || "Department unavailable") + ' · SCORE ' +
+                escapeHtml(student.success_score) + '</span><h3>' + escapeHtml(id) +
+                '</h3></div><span class="student-risk risk-' + riskClass(student.risk) + '">' +
+                escapeHtml(riskTypes.join(" / ") || student.risk) + '</span></div>' +
+                '<p class="action-case-recommendation">' + escapeHtml(student.recommended_action ||
+                "Review current student indicators and agree a support step.") + '</p>' +
+                '<div class="action-case-fields"><label>Status<select data-case-status>' +
+                ["Not started", "Contacted", "In progress", "Resolved"].map(function (status) {
+                    return '<option' + ((record.status || "Not started") === status ? " selected" : "") +
+                        '>' + status + '</option>';
+                }).join("") + '</select></label><label>Follow-up date<input type="date" data-case-date value="' +
+                escapeHtml(record.dueDate || "") + '"></label></div>' +
+                '<label class="action-note-label">Brief non-sensitive note<textarea data-case-note maxlength="240" rows="2" placeholder="Next step only; no private details.">' +
+                escapeHtml(record.note || "") + '</textarea></label><div class="action-case-footer">' +
+                '<small>' + (record.updatedAt ? "Updated " +
+                    escapeHtml(new Date(record.updatedAt).toLocaleString()) : "No follow-up saved") +
+                '</small><button class="secondary-button" type="button" data-save-case="' +
+                escapeHtml(id) + '">Save update</button></div></article>';
+        }).join("") : '<div class="panel action-empty"><strong>' +
+            (mode === "resolved" ? "No resolved cases yet." : "No open support cases.") +
+            '</strong><span>Support cases are based on current academic and placement rules.</span></div>';
+    }
+
+    function parseCsv(text) {
+        const rows = [];
+        let row = [];
+        let cell = "";
+        let quoted = false;
+        const source = text.replace(/^\uFEFF/, "");
+        for (let index = 0; index < source.length; index += 1) {
+            const character = source[index];
+            if (quoted) {
+                if (character === '"' && source[index + 1] === '"') {
+                    cell += '"';
+                    index += 1;
+                } else if (character === '"') {
+                    quoted = false;
+                } else {
+                    cell += character;
+                }
+            } else if (character === '"' && cell.length === 0) {
+                quoted = true;
+            } else if (character === ",") {
+                row.push(cell);
+                cell = "";
+            } else if (character === "\n" || character === "\r") {
+                if (character === "\r" && source[index + 1] === "\n") index += 1;
+                row.push(cell);
+                if (row.some(function (item) { return item.trim() !== ""; })) rows.push(row);
+                row = [];
+                cell = "";
+            } else {
+                cell += character;
+            }
+        }
+        if (quoted) throw new Error("CSV contains an unclosed quoted value.");
+        if (cell.length || row.length) {
+            row.push(cell);
+            if (row.some(function (item) { return item.trim() !== ""; })) rows.push(row);
+        }
+        return rows;
+    }
+
+    const csvFields = ["student_id", "department", "cgpa", "attendance", "lms_score",
+        "engagement", "coding_score", "skills_score", "placement_score", "feedback_score"];
+    let validatedCsvRecords = null;
+
+    function createImportedStudent(row) {
+        const weights = {
+            cgpa: 0.20, attendance: 0.15, lms_score: 0.15, engagement: 0.10,
+            coding_score: 0.10, skills_score: 0.10, placement_score: 0.10, feedback_score: 0.10
+        };
+        const labels = {
+            cgpa: ["Academic performance (CGPA)", 10],
+            attendance: ["Attendance", 1],
+            lms_score: ["LMS performance", 1],
+            engagement: ["Engagement", 1],
+            coding_score: ["Coding", 1],
+            skills_score: ["Skills", 1],
+            placement_score: ["Placement readiness", 1],
+            feedback_score: ["Student feedback", 1]
+        };
+        const scoreBreakdown = Object.keys(weights).map(function (key) {
+            const normalized = Number(row[key]) * labels[key][1];
+            return {
+                key: key,
+                label: labels[key][0],
+                value: Number(row[key]),
+                normalized_value: normalized,
+                unit: key === "cgpa" ? "/10" : "%",
+                weight: weights[key],
+                contribution: normalized * weights[key]
+            };
+        });
+        const score = scoreBreakdown.reduce(function (sum, factor) {
+            return sum + factor.contribution;
+        }, 0);
+        row.success_score = Number(score.toFixed(2));
+        row.risk = score >= 80 ? "LOW" : score >= 60 ? "MEDIUM" : "HIGH";
+        row.placement_risk = row.placement_score < 50 || row.coding_score < 50 ? "HIGH" :
+            row.placement_score < 70 || row.coding_score < 60 ? "MEDIUM" : "LOW";
+        const rules = [
+            ["cgpa", "CGPA", 6.5], ["attendance", "Attendance", 75],
+            ["lms_score", "LMS performance", 60], ["engagement", "Engagement", 50],
+            ["placement_score", "Placement readiness", 60], ["coding_score", "Coding", 50],
+            ["skills_score", "Skills", 50], ["feedback_score", "Feedback", 50]
+        ];
+        row.risk_drivers = rules.filter(function (rule) {
+            return row[rule[0]] < rule[2];
+        }).map(function (rule) {
+            return { key: rule[0], message: rule[1] + " is " + row[rule[0]] +
+                ", below the support threshold of " + rule[2] + "." };
+        });
+        if (!row.risk_drivers.length && row.risk !== "LOW") {
+            row.risk_drivers.push({
+                key: "success_score",
+                message: "The overall success score is below the " + row.risk.toLowerCase() +
+                    "-risk band threshold of " + (row.risk === "HIGH" ? 60 : 80) + "."
+            });
+        }
+        if (row.cgpa >= 8 && row.placement_score < 65) row.segment = "academic_placement_support";
+        else if (row.cgpa >= 7 && row.placement_score >= 75 && row.coding_score >= 70) row.segment = "placement_ready";
+        else if (row.cgpa < 6.5 || row.success_score < 60) row.segment = "academic_recovery";
+        else if (row.attendance < 75 || row.lms_score < 60 || row.engagement < 50) row.segment = "engagement_support";
+        else row.segment = "balanced_progress";
+        const segments = {
+            academic_placement_support: ["Strong academics, placement support", "Strong CGPA with a placement-readiness gap.", "Offer aptitude practice, coding interviews, and mock-placement sessions."],
+            placement_ready: ["Placement ready", "Strong academic foundation, coding, and placement-readiness scores.", "Connect with relevant placement opportunities and advanced interview practice."],
+            academic_recovery: ["Academic recovery", "Low overall success score or CGPA indicates a need for academic support.", "Review subject-level performance and agree on a faculty-led study plan."],
+            engagement_support: ["Engagement support", "Attendance, LMS activity, or engagement is below its support threshold.", "Check for barriers to participation and set a short-term engagement goal."],
+            balanced_progress: ["Balanced progress", "No segment-specific support trigger is currently present.", "Continue regular progress reviews and encourage development opportunities."]
+        };
+        row.segment_label = segments[row.segment][0];
+        row.segment_description = segments[row.segment][1];
+        row.recommended_action = segments[row.segment][2];
+        row.score_breakdown = scoreBreakdown;
+        return row;
+    }
+
+    function validateCsv(text) {
+        const rows = parseCsv(text);
+        if (!rows.length) throw new Error("The CSV file is empty.");
+        const headers = rows[0].map(function (header) { return header.trim().toLowerCase(); });
+        const missingHeaders = csvFields.filter(function (field) { return !headers.includes(field); });
+        if (missingHeaders.length) {
+            return { records: [], errors: ["Missing required columns: " + missingHeaders.join(", ")],
+                rowCount: Math.max(0, rows.length - 1), missing: 0, invalid: 0, duplicates: 0, previewRows: [] };
+        }
+        const indexes = {};
+        csvFields.forEach(function (field) { indexes[field] = headers.indexOf(field); });
+        const candidates = [];
+        const rowErrors = [];
+        let missing = 0;
+        let invalid = 0;
+        const ids = Object.create(null);
+        let duplicates = 0;
+        rows.slice(1).forEach(function (cells, rowIndex) {
+            const record = {};
+            csvFields.forEach(function (field) {
+                record[field] = (cells[indexes[field]] || "").trim();
+            });
+            const csvRow = rowIndex + 2;
+            let rowValid = true;
+            if (!record.student_id || !record.department) {
+                missing += 1;
+                rowErrors.push("Row " + csvRow + ": student ID or department is missing.");
+                rowValid = false;
+            }
+            csvFields.slice(2).forEach(function (field) {
+                if (record[field] === "") {
+                    missing += 1;
+                    rowErrors.push("Row " + csvRow + ": " + field + " is missing.");
+                    rowValid = false;
+                    return;
+                }
+                const value = Number(record[field]);
+                const max = field === "cgpa" ? 10 : 100;
+                if (!Number.isFinite(value) || value < 0 || value > max) {
+                    invalid += 1;
+                    rowErrors.push("Row " + csvRow + ": " + field + " must be between 0 and " + max + ".");
+                    rowValid = false;
+                    return;
+                }
+                record[field] = value;
+            });
+            const normalizedId = record.student_id.toLowerCase();
+            if (normalizedId) {
+                if (ids[normalizedId]) {
+                    duplicates += 1;
+                    rowErrors.push("Row " + csvRow + ": duplicate student ID '" + record.student_id + "'.");
+                    rowValid = false;
+                } else {
+                    ids[normalizedId] = true;
+                }
+            }
+            if (rowValid) candidates.push(createImportedStudent(record));
+        });
+        return {
+            records: candidates,
+            errors: rowErrors,
+            rowCount: rows.length - 1,
+            missing: missing,
+            invalid: invalid,
+            duplicates: duplicates,
+            previewRows: candidates.slice(0, 6),
+            allValid: candidates.length > 0 && candidates.length === rows.length - 1
+        };
+    }
+
+    function showCsvValidation(result, fileName) {
+        const report = document.getElementById("csvQualityReport");
+        const preview = document.getElementById("csvPreview");
+        const applyButton = document.getElementById("applyCsvImport");
+        if (!report || !preview || !applyButton) return;
+        const errorsMarkup = result.errors.length ? '<ul class="csv-errors">' +
+            result.errors.slice(0, 8).map(function (error) {
+                return "<li>" + escapeHtml(error) + "</li>";
+            }).join("") + (result.errors.length > 8 ? "<li>And " +
+                (result.errors.length - 8) + " more issue(s).</li>" : "") + '</ul>' : "";
+        report.innerHTML = '<div class="csv-report-grid"><div><strong>' + result.rowCount +
+            '</strong><span>DATA ROWS</span></div><div><strong>' + result.missing +
+            '</strong><span>MISSING VALUES</span></div><div><strong>' + result.invalid +
+            '</strong><span>INVALID VALUES</span></div><div><strong>' + result.duplicates +
+            '</strong><span>DUPLICATE IDs</span></div></div><p class="' +
+            (result.allValid ? "csv-valid" : "csv-invalid") + '">' +
+            (result.allValid ? "All rows passed validation. Review the preview before importing." :
+                "Import is blocked until every row has valid required values and a unique student ID.") +
+            '</p>' + errorsMarkup;
+        preview.hidden = !result.previewRows.length;
+        preview.innerHTML = result.previewRows.length ? '<strong>Preview · first ' +
+            result.previewRows.length + ' valid record(s)</strong><div class="table-wrap"><table><thead><tr>' +
+            '<th>STUDENT</th><th>DEPARTMENT</th><th>CGPA</th><th>ATTENDANCE</th><th>SUCCESS SCORE</th><th>RISK</th>' +
+            '</tr></thead><tbody>' + result.previewRows.map(function (student) {
+                return '<tr><td>' + escapeHtml(student.student_id) + '</td><td>' +
+                    escapeHtml(student.department) + '</td><td>' + escapeHtml(student.cgpa) +
+                    '</td><td>' + escapeHtml(student.attendance) + '%</td><td>' +
+                    escapeHtml(student.success_score) + '</td><td>' + escapeHtml(student.risk) + '</td></tr>';
+            }).join("") + '</tbody></table></div>' : "";
+        applyButton.disabled = !result.allValid;
+        setText("csvFileName", fileName);
+    }
+
+    function renderPeerLearning() {
+        const board = document.getElementById("learningPostList");
+        if (!board) return;
+        const posts = learningPosts.filter(function (post) {
+            return learningFilter === "all" || post.intent === learningFilter;
+        });
+        board.innerHTML = posts.length ? posts.map(function (post) {
+            const isOffer = post.intent === "teach";
+            return '<article class="learning-post ' + (isOffer ? "learning-offer" : "learning-request") + '">' +
+                '<div class="learning-post-top"><span class="learning-kind">' +
+                (isOffer ? "CAN TEACH" : "WANTS TO LEARN") + '</span><span class="learning-mode">' +
+                escapeHtml(post.mode || "Either") + '</span></div><h4>' + escapeHtml(post.topic) +
+                '</h4><p>' + escapeHtml(post.details || (isOffer ? "Open to sharing this skill with a peer." :
+                    "Looking for a peer to learn this skill together.")) + '</p><div class="learning-post-footer"><span>By ' +
+                escapeHtml(post.alias) + (post.demo ? " · SAMPLE" : "") + '</span>' +
+                (isOffer ? '<button type="button" class="interest-button" data-interest="' +
+                    escapeHtml(post.id) + '">' + (post.interested ? "Request sent ✓" : "I'm interested →") +
+                    '</button>' : '<span class="learning-peer-only">Peer request</span>') +
+                '</div></article>';
+        }).join("") : '<div class="panel action-empty"><strong>No posts in this view yet.</strong>' +
+            '<span>Be the first to post an offer or learning request.</span></div>';
+    }
+
     async function loadDashboard() {
         setConnectionState(false, "Connecting to backend…");
         try {
@@ -590,10 +1118,18 @@ document.addEventListener("DOMContentLoaded", function () {
             ]);
             if (!Array.isArray(results[0])) throw new Error("Student records returned an unexpected response.");
             students = results[0];
+            backendStudents = results[0].slice();
+            importedDataset = false;
             renderSummary(results[1]);
             renderStudentDirectory();
             renderPriorityTable();
             renderRiskTable();
+            renderActionCenter();
+            renderPeerLearning();
+            renderDataQualitySummary();
+            setText("dataLabBadge", "BACKEND DATA");
+            const restoreButton = document.getElementById("restoreBackendData");
+            if (restoreButton) restoreButton.hidden = true;
             setConnectionState(true, "Backend connected · " + students.length + " students loaded");
             loadDepartmentAnalytics().catch(function (error) {
                 const chart = document.getElementById("departmentAnalytics");
@@ -621,9 +1157,191 @@ document.addEventListener("DOMContentLoaded", function () {
             if (riskTable) {
                 riskTable.innerHTML = '<tr class="empty-row"><td colspan="7">Risk records unavailable until the backend connects.</td></tr>';
             }
+            renderActionCenter();
+            renderPeerLearning();
+            renderDataQualitySummary();
             showNotification("Backend connection failed. Start the Flask API and reload.");
         }
     }
+
+    const actionFilter = document.getElementById("actionStatusFilter");
+    if (actionFilter) actionFilter.addEventListener("change", renderActionCenter);
+    const actionList = document.getElementById("actionCaseList");
+    if (actionList) actionList.addEventListener("click", function (event) {
+        const button = event.target.closest("[data-save-case]");
+        if (!button) return;
+        const card = button.closest("[data-case-id]");
+        if (!card) return;
+        const id = button.dataset.saveCase;
+        interventionRecords[id] = {
+            status: card.querySelector("[data-case-status]").value,
+            dueDate: card.querySelector("[data-case-date]").value,
+            note: card.querySelector("[data-case-note]").value.trim(),
+            updatedAt: new Date().toISOString()
+        };
+        if (saveLocalRecords(ACTION_STORAGE_KEY, interventionRecords)) {
+            renderActionCenter();
+            showNotification("Case update saved in this browser.");
+        }
+    });
+
+    const learningForm = document.getElementById("learningPostForm");
+    if (learningForm) learningForm.addEventListener("submit", function (event) {
+        event.preventDefault();
+        const formData = new FormData(learningForm);
+        const alias = String(formData.get("alias") || "").trim();
+        const topic = String(formData.get("topic") || "").trim();
+        const details = String(formData.get("details") || "").trim();
+        if (!alias || !topic) {
+            showNotification("Add a nickname and a skill or topic before posting.");
+            return;
+        }
+        const post = {
+            id: "post-" + Date.now() + "-" + Math.floor(Math.random() * 100000),
+            alias: alias,
+            intent: String(formData.get("intent") || "teach"),
+            topic: topic,
+            details: details,
+            mode: String(formData.get("mode") || "Either"),
+            demo: false,
+            interested: false
+        };
+        learningPosts.unshift(post);
+        if (saveLocalRecords(LEARNING_STORAGE_KEY, learningPosts)) {
+            learningForm.reset();
+            renderPeerLearning();
+            showNotification("Your post is now on this browser's learning board.");
+        }
+    });
+    const learningBoard = document.getElementById("learningPostList");
+    if (learningBoard) learningBoard.addEventListener("click", function (event) {
+        const button = event.target.closest("[data-interest]");
+        if (!button) return;
+        const post = learningPosts.find(function (item) { return item.id === button.dataset.interest; });
+        if (!post) return;
+        post.interested = !post.interested;
+        if (saveLocalRecords(LEARNING_STORAGE_KEY, learningPosts)) {
+            renderPeerLearning();
+            showNotification(post.interested ? "Interest noted locally. Contact details are intentionally not collected." :
+                "Interest request removed.");
+        }
+    });
+    document.querySelectorAll("[data-learning-filter]").forEach(function (button) {
+        button.addEventListener("click", function () {
+            learningFilter = button.dataset.learningFilter || "all";
+            document.querySelectorAll("[data-learning-filter]").forEach(function (filterButton) {
+                filterButton.classList.toggle("active", filterButton === button);
+            });
+            renderPeerLearning();
+        });
+    });
+
+    const csvInput = document.getElementById("studentCsvFile");
+    if (csvInput) csvInput.addEventListener("change", function () {
+        const file = csvInput.files && csvInput.files[0];
+        if (!file) return;
+        if (!file.name.toLowerCase().endsWith(".csv")) {
+            showNotification("Choose a .csv file to continue.");
+            return;
+        }
+        file.text().then(function (text) {
+            const result = validateCsv(text);
+            validatedCsvRecords = result.allValid ? result.records : null;
+            showCsvValidation(result, file.name);
+        }).catch(function (error) {
+            validatedCsvRecords = null;
+            showNotification("Could not read this CSV file: " + error.message);
+        });
+    });
+    const csvDropzone = document.getElementById("csvDropzone");
+    if (csvDropzone && csvInput) {
+        ["dragenter", "dragover"].forEach(function (eventName) {
+            csvDropzone.addEventListener(eventName, function (event) {
+                event.preventDefault();
+                csvDropzone.classList.add("is-dragging");
+            });
+        });
+        ["dragleave", "drop"].forEach(function (eventName) {
+            csvDropzone.addEventListener(eventName, function (event) {
+                event.preventDefault();
+                csvDropzone.classList.remove("is-dragging");
+            });
+        });
+        csvDropzone.addEventListener("drop", function (event) {
+            const files = event.dataTransfer && event.dataTransfer.files;
+            if (!files || !files.length) return;
+            try {
+                const transfer = new DataTransfer();
+                transfer.items.add(files[0]);
+                csvInput.files = transfer.files;
+                csvInput.dispatchEvent(new Event("change", { bubbles: true }));
+            } catch (error) {
+                showNotification("Could not attach the dropped CSV: " + error.message);
+            }
+        });
+    }
+    const applyCsvImport = document.getElementById("applyCsvImport");
+    if (applyCsvImport) applyCsvImport.addEventListener("click", function () {
+        if (!validatedCsvRecords || !validatedCsvRecords.length) {
+            showNotification("Validate a complete CSV before importing.");
+            return;
+        }
+        students = validatedCsvRecords;
+        importedDataset = true;
+        activeFilter = "all";
+        activeSegment = "";
+        if (studentSearch) studentSearch.value = "";
+        document.querySelectorAll(".filter-button").forEach(function (button) {
+            button.classList.toggle("active", button.dataset.filter === "all");
+        });
+        renderSummary(makeLocalSummary(students));
+        renderStudentDirectory();
+        renderPriorityTable();
+        renderRiskTable();
+        renderActionCenter();
+        renderLocalAnalytics();
+        setText("dataLabBadge", "SESSION CSV");
+        const restoreButton = document.getElementById("restoreBackendData");
+        if (restoreButton) restoreButton.hidden = false;
+        setConnectionState(true, "Session-only CSV active · " + students.length + " records · not uploaded");
+        showNotification("Validated CSV is now active in this browser session only.");
+    });
+    const restoreBackendData = document.getElementById("restoreBackendData");
+    if (restoreBackendData) restoreBackendData.addEventListener("click", function () {
+        if (!backendStudents.length) {
+            showNotification("Backend records are not available. Reconnect and reload to restore them.");
+            return;
+        }
+        students = backendStudents.slice();
+        importedDataset = false;
+        validatedCsvRecords = null;
+        renderSummary(makeLocalSummary(students));
+        renderStudentDirectory();
+        renderPriorityTable();
+        renderRiskTable();
+        renderActionCenter();
+        renderLocalAnalytics();
+        setText("dataLabBadge", "BACKEND DATA");
+        restoreBackendData.hidden = true;
+        setConnectionState(true, "Backend connected · " + students.length + " students loaded");
+        showNotification("Backend records restored.");
+    });
+    const downloadTemplate = document.getElementById("downloadCsvTemplate");
+    if (downloadTemplate) downloadTemplate.addEventListener("click", function () {
+        const sample = [
+            csvFields.join(","),
+            "DEMO001,Computer Science,8.2,88,76,72,68,80,65,82",
+            "DEMO002,Computer Science,6.1,70,55,44,48,60,52,74"
+        ].join("\r\n");
+        const url = URL.createObjectURL(new Blob([sample], { type: "text/csv;charset=utf-8" }));
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = "student-success-demo-template.csv";
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+        setTimeout(function () { URL.revokeObjectURL(url); }, 1000);
+    });
 
     if (studentSearch) {
         studentSearch.addEventListener("input", renderStudentDirectory);
