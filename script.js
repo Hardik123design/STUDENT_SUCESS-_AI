@@ -19,6 +19,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const footerYear = document.getElementById("footerYear");
     const studentDirectory = document.getElementById("studentDirectory");
     const studentEmpty = document.getElementById("studentEmpty");
+    const segmentFilterNotice = document.getElementById("segmentFilterNotice");
 
     const routes = {
         overview: { title: "Dashboard Overview", label: "OVERVIEW" },
@@ -29,6 +30,7 @@ document.addEventListener("DOMContentLoaded", function () {
     };
     let students = [];
     let activeFilter = "all";
+    let activeSegment = "";
     let toastTimer = null;
 
     function showNotification(message) {
@@ -161,19 +163,33 @@ document.addEventListener("DOMContentLoaded", function () {
         const matchingStudents = students.filter(function (student) {
             const matchesFilter = activeFilter === "all" || riskClass(student.risk) === activeFilter;
             const searchableText = [
-                student.student_id, student.department, student.risk, student.risk_factors
+                student.student_id, student.department, student.risk, student.risk_factors,
+                student.segment_label, student.risk_drivers && student.risk_drivers.map(function (driver) {
+                    return driver.message;
+                }).join(" ")
             ].join(" ").toLowerCase();
-            return matchesFilter && searchableText.includes(query);
+            const matchesSegment = !activeSegment || student.segment === activeSegment;
+            return matchesFilter && matchesSegment && searchableText.includes(query);
         });
 
         if (studentEmpty) studentEmpty.hidden = students.length > 0;
+        if (segmentFilterNotice) {
+            segmentFilterNotice.hidden = !activeSegment;
+            const activeSegmentLabel = document.getElementById("activeSegmentLabel");
+            if (activeSegmentLabel) {
+                const match = students.find(function (student) {
+                    return student.segment === activeSegment;
+                });
+                activeSegmentLabel.textContent = match ? match.segment_label : activeSegment;
+            }
+        }
         studentDirectory.innerHTML = matchingStudents.length ? matchingStudents.map(function (student) {
             const id = escapeHtml(student.student_id);
             const risk = escapeHtml(student.risk || "UNKNOWN");
             return '<button class="student-record" type="button" data-student-id="' + id + '">' +
                 '<span class="student-record-avatar">' + escapeHtml(String(student.student_id || "?").slice(-2)) + '</span>' +
                 '<span class="student-record-main"><strong>' + id + '</strong>' +
-                '<small>' + escapeHtml(student.department || "Department unavailable") + '</small></span>' +
+                '<small>' + escapeHtml(student.segment_label || student.department || "Department unavailable") + '</small></span>' +
                 '<span class="student-record-score">' + escapeHtml(student.success_score) + '<small>score</small></span>' +
                 '<span class="student-risk risk-' + riskClass(student.risk) + '">' + risk + '</span></button>';
         }).join("") : (students.length ? '<p class="directory-empty">No students match this search or risk filter.</p>' : "");
@@ -191,6 +207,23 @@ document.addEventListener("DOMContentLoaded", function () {
     function renderStudentDetails(student) {
         const inspector = document.querySelector(".student-inspector");
         if (!inspector) return;
+        const scoreBreakdown = Array.isArray(student.score_breakdown) ? student.score_breakdown : [];
+        const riskDrivers = Array.isArray(student.risk_drivers) ? student.risk_drivers : [];
+        const breakdownMarkup = scoreBreakdown.map(function (factor) {
+            const normalizedValue = Math.max(0, Math.min(100, Number(factor.normalized_value) || 0));
+            const value = Number(factor.value) || 0;
+            return '<div class="score-factor"><div class="score-factor-heading"><span>' +
+                escapeHtml(factor.label) + '</span><strong>' + value.toFixed(1) +
+                escapeHtml(factor.unit || "%") + '</strong></div>' +
+                '<div class="score-factor-track"><i style="width:' + normalizedValue + '%"></i></div><small>' +
+                escapeHtml((Number(factor.weight) * 100).toFixed(0)) + '% weight · +' +
+                escapeHtml(Number(factor.contribution).toFixed(2)) + ' score points</small></div>';
+        }).join("");
+        const riskMarkup = riskDrivers.length
+            ? '<ul class="insight-list">' + riskDrivers.map(function (driver) {
+                return '<li>' + escapeHtml(driver.message) + '</li>';
+            }).join("") + '</ul>'
+            : '<p class="insight-clear">No individual risk-driver threshold is currently triggered.</p>';
         inspector.innerHTML =
             '<div class="inspector-top"><span class="panel-kicker">STUDENT DETAILS</span>' +
             '<span class="live-chip">' + escapeHtml(student.risk || "UNKNOWN") + '</span></div>' +
@@ -202,7 +235,17 @@ document.addEventListener("DOMContentLoaded", function () {
             '<div><span>ATTENDANCE</span><strong>' + escapeHtml(student.attendance) + '%</strong></div>' +
             '<div><span>LMS SCORE</span><strong>' + escapeHtml(student.lms_score) + '</strong></div>' +
             '<div><span>SUCCESS SCORE</span><strong>' + escapeHtml(student.success_score) + '</strong></div>' +
-            '</div><p class="student-risk-factors">' + escapeHtml(student.risk_factors || "No risk factors recorded.") + '</p>';
+            '</div><section class="student-insight-section"><span class="panel-kicker">SUCCESS SCORE EXPLANATION</span>' +
+            '<p class="insight-intro">Weighted 0–100 score. Each contribution equals the normalized indicator multiplied by its published weight.</p>' +
+            '<div class="score-breakdown">' + (breakdownMarkup || '<p class="insight-clear">Score contributions are unavailable.</p>') +
+            '</div></section><section class="student-insight-section"><span class="panel-kicker">RISK DRIVERS</span>' +
+            riskMarkup + '</section><section class="student-insight-section segment-explanation"><span class="panel-kicker">SUPPORT SEGMENT</span>' +
+            '<h4>' + escapeHtml(student.segment_label || "Unclassified") + '</h4><p>' +
+            escapeHtml(student.segment_description || "") + '</p><strong>Suggested faculty action</strong><p>' +
+            escapeHtml(student.recommended_action || "Review the student record with faculty.") +
+            '</p><strong>Placement risk</strong><p>' + escapeHtml(student.placement_risk || "Unavailable") +
+            ' · placement score ' + escapeHtml(student.placement_score) + ', coding score ' +
+            escapeHtml(student.coding_score) + '</p></section>';
     }
 
     function renderPriorityTable() {
@@ -240,12 +283,21 @@ document.addEventListener("DOMContentLoaded", function () {
             return ["HIGH", "MEDIUM"].includes(String(student.risk || "").toUpperCase());
         });
         tableBody.innerHTML = flagged.length ? flagged.map(function (student) {
+            const drivers = Array.isArray(student.risk_drivers) && student.risk_drivers.length
+                ? student.risk_drivers.map(function (driver) {
+                    return driver.message;
+                }).join(" ")
+                : "No individual factor threshold triggered.";
             return '<tr><td><strong>' + escapeHtml(student.student_id) + '</strong><small class="table-subtext">' +
                 escapeHtml(student.department || "") + '</small></td><td>' + escapeHtml(student.success_score) +
                 '</td><td>' + escapeHtml(student.attendance) + '%</td><td>' +
-                escapeHtml(student.risk_factors || "No risk factors recorded.") + '</td><td><span class="student-risk risk-' +
-                riskClass(student.risk) + '">' + escapeHtml(student.risk) + '</span></td></tr>';
-        }).join("") : '<tr class="empty-row"><td colspan="5"><div class="table-empty">' +
+                '<span class="student-risk risk-' + riskClass(student.placement_risk) + '">' +
+                escapeHtml(student.placement_risk || "UNKNOWN") + '</span></td><td>' +
+                escapeHtml(drivers) + '</td><td><span class="student-risk risk-' +
+                riskClass(student.risk) + '">' + escapeHtml(student.risk) + '</span></td><td><strong>' +
+                escapeHtml(student.segment_label || "Unclassified") + '</strong><small class="table-subtext">' +
+                escapeHtml(student.recommended_action || "") + '</small></td></tr>';
+        }).join("") : '<tr class="empty-row"><td colspan="7"><div class="table-empty">' +
             '<strong>No students flagged</strong><span>All available records are currently in good standing.</span>' +
             '</div></td></tr>';
     }
@@ -286,6 +338,9 @@ document.addEventListener("DOMContentLoaded", function () {
         setText("riskHighCount", high);
         setText("riskMediumCount", medium);
         setText("riskLowCount", low);
+        setText("placementRiskCount", summary.placement_risk_students == null
+            ? "--"
+            : summary.placement_risk_students);
         const coreScore = document.querySelector(".core-score span");
         if (coreScore) coreScore.textContent = Number(summary.average_success_score).toFixed(0);
         const coreLabel = document.querySelector(".core-label");
@@ -317,6 +372,56 @@ document.addEventListener("DOMContentLoaded", function () {
         }).join("") + '</div>';
     }
 
+    async function loadScoringMethodology() {
+        const factorsContainer = document.getElementById("scoringFactors");
+        const note = document.getElementById("scoreMethodNote");
+        const methodology = await apiRequest("/analytics/scoring");
+        if (!Array.isArray(methodology.factors) || methodology.factors.length === 0) {
+            throw new Error("Scoring methodology returned no factors.");
+        }
+        if (factorsContainer) {
+            factorsContainer.innerHTML = methodology.factors.map(function (factor) {
+                const weight = Number(factor.weight) || 0;
+                return '<div class="signal-row"><span>' + escapeHtml(factor.label) +
+                    '</span><strong>' + (weight * 100).toFixed(0) + '%</strong></div>' +
+                    '<div class="signal-progress"><span style="width:' + Math.min(100, weight * 500) +
+                    '%"></span></div>';
+            }).join("");
+        }
+        if (note) {
+            const thresholds = methodology.risk_thresholds || {};
+            note.textContent = "Risk bands: LOW " + (thresholds.LOW || "—") +
+                " · MEDIUM " + (thresholds.MEDIUM || "—") + " · HIGH " +
+                (thresholds.HIGH || "—") + ". " + (methodology.note || "");
+        }
+    }
+
+    async function loadSegmentAnalytics() {
+        const container = document.getElementById("segmentGrid");
+        if (!container) return;
+        const segments = await apiRequest("/analytics/segments");
+        if (!Array.isArray(segments)) throw new Error("Student segments returned an unexpected response.");
+        container.innerHTML = segments.map(function (segment) {
+            return '<button class="segment-card" type="button" data-segment="' +
+                escapeHtml(segment.segment) + '"><span>' + escapeHtml(segment.label) +
+                '</span><strong>' + escapeHtml(segment.student_count) + '</strong><small>Avg. score ' +
+                escapeHtml(segment.average_success_score) + '</small><small>' +
+                escapeHtml(segment.description) + '</small></button>';
+        }).join("");
+        container.querySelectorAll("[data-segment]").forEach(function (button) {
+            button.addEventListener("click", function () {
+                activeSegment = button.dataset.segment || "";
+                activeFilter = "all";
+                document.querySelectorAll(".filter-button").forEach(function (filterButton) {
+                    filterButton.classList.toggle("active", filterButton.dataset.filter === "all");
+                });
+                switchTab("students");
+                renderStudentDirectory();
+                if (studentSearch) studentSearch.focus();
+            });
+        });
+    }
+
     async function loadDashboard() {
         setConnectionState(false, "Connecting to backend…");
         try {
@@ -336,6 +441,16 @@ document.addEventListener("DOMContentLoaded", function () {
                 if (chart) chart.innerHTML = "<strong>Department analytics unavailable</strong><span>" +
                     escapeHtml(error.message) + "</span>";
             });
+            loadScoringMethodology().catch(function (error) {
+                const factors = document.getElementById("scoringFactors");
+                if (factors) factors.innerHTML = '<p class="insight-error">' +
+                    escapeHtml(error.message) + '</p>';
+            });
+            loadSegmentAnalytics().catch(function (error) {
+                const segments = document.getElementById("segmentGrid");
+                if (segments) segments.innerHTML = '<p class="insight-error">' +
+                    escapeHtml(error.message) + '</p>';
+            });
         } catch (error) {
             setConnectionState(false, "Cannot reach API at " + API_BASE_URL + " · " + error.message);
             if (studentEmpty) {
@@ -345,7 +460,7 @@ document.addEventListener("DOMContentLoaded", function () {
             }
             const riskTable = document.getElementById("riskStudents");
             if (riskTable) {
-                riskTable.innerHTML = '<tr class="empty-row"><td colspan="5">Risk records unavailable until the backend connects.</td></tr>';
+                riskTable.innerHTML = '<tr class="empty-row"><td colspan="7">Risk records unavailable until the backend connects.</td></tr>';
             }
             showNotification("Backend connection failed. Start the Flask API and reload.");
         }
@@ -361,9 +476,17 @@ document.addEventListener("DOMContentLoaded", function () {
             });
             button.classList.add("active");
             activeFilter = button.dataset.filter || "all";
+            activeSegment = "";
             renderStudentDirectory();
         });
     });
+    const clearSegmentFilter = document.getElementById("clearSegmentFilter");
+    if (clearSegmentFilter) {
+        clearSegmentFilter.addEventListener("click", function () {
+            activeSegment = "";
+            renderStudentDirectory();
+        });
+    }
 
     function findStudent(query) {
         const normalizedQuery = query.trim().toLowerCase();
@@ -416,13 +539,20 @@ document.addEventListener("DOMContentLoaded", function () {
             return;
         }
         if (output) {
+            const drivers = Array.isArray(student.risk_drivers) ? student.risk_drivers : [];
+            const driverText = drivers.length
+                ? drivers.map(function (driver) { return driver.message; }).join(" ")
+                : "No individual risk-driver threshold is currently triggered.";
             output.innerHTML = '<div class="ai-wave"><span></span><span></span><span></span><span></span>' +
                 '<span></span><span></span><span></span><span></span></div><h3>' +
                 escapeHtml(student.student_id) + ' · ' + escapeHtml(student.risk) + ' RISK</h3><p>' +
-                escapeHtml(student.risk_factors || "No risk factors recorded.") + '</p><div class="ai-tags">' +
+                escapeHtml(driverText) + '</p><p><strong>' + escapeHtml(student.segment_label || "") +
+                '</strong> — ' + escapeHtml(student.recommended_action || "") + '</p><div class="ai-tags">' +
                 '<span>Success score: ' + escapeHtml(student.success_score) + '</span><span>CGPA: ' +
                 escapeHtml(student.cgpa) + '</span><span>Attendance: ' + escapeHtml(student.attendance) +
-                '%</span></div><p class="prediction-note">This backend provides student records, not a prediction endpoint.</p>';
+                '%</span><span>Placement: ' + escapeHtml(student.placement_score) +
+                '</span><span>Placement risk: ' + escapeHtml(student.placement_risk || "Unavailable") +
+                '</span></div><p class="prediction-note">Rule-based support insights from current records—not a validated predictive model. Faculty should review context before acting.</p>';
         }
         aiPrompt.value = "";
     }

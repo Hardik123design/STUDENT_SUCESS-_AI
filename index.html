@@ -202,7 +202,7 @@
                         <article class="metric-card">
                             <div class="metric-icon warning-icon">△</div>
                             <div class="metric-content">
-                                <span>CRITICAL ALERTS</span>
+                                <span>HIGH-RISK STUDENTS</span>
                                 <strong id="criticalAlerts">--</strong>
                                 <small>High-risk students</small>
                             </div>
@@ -388,9 +388,13 @@
 
                             <div class="filters">
                                 <button class="filter-button active" data-filter="all" type="button">All</button>
-                                <button class="filter-button" data-filter="high" type="button">Critical</button>
-                                <button class="filter-button" data-filter="medium" type="button">Warning</button>
-                                <button class="filter-button" data-filter="stable" type="button">Normal</button>
+                                <button class="filter-button" data-filter="high" type="button">High risk</button>
+                                <button class="filter-button" data-filter="medium" type="button">Medium risk</button>
+                                <button class="filter-button" data-filter="stable" type="button">Low risk</button>
+                            </div>
+                            <div class="segment-filter-notice" id="segmentFilterNotice" hidden>
+                                <span>Segment: <strong id="activeSegmentLabel"></strong></span>
+                                <button id="clearSegmentFilter" type="button">Clear</button>
                             </div>
 
                             <div class="student-empty" id="studentEmpty">
@@ -417,8 +421,8 @@
                             <div class="placeholder-stats">
                                 <div><span>GPA</span><strong>--</strong></div>
                                 <div><span>ATTENDANCE</span><strong>--</strong></div>
-                                <div><span>SUBMISSION</span><strong>--</strong></div>
-                                <div><span>STATUS</span><strong>--</strong></div>
+                                <div><span>LMS SCORE</span><strong>--</strong></div>
+                                <div><span>SUCCESS SCORE</span><strong>--</strong></div>
                             </div>
                         </div>
                     </div>
@@ -463,36 +467,14 @@
                             <div class="panel-head">
                                 <div>
                                     <span class="panel-kicker">FACTORS</span>
-                                    <h3>Weightage Distribution</h3>
+                                    <h3>Success Score Weights</h3>
                                 </div>
                             </div>
 
-                            <div class="signal-list">
-                                <div class="signal-row">
-                                    <span>Exam Results</span><strong>--</strong>
-                                </div>
-                                <div class="signal-progress"><span></span></div>
-
-                                <div class="signal-row">
-                                    <span>Lab Attendance</span><strong>--</strong>
-                                </div>
-                                <div class="signal-progress"><span></span></div>
-
-                                <div class="signal-row">
-                                    <span>Assignments</span><strong>--</strong>
-                                </div>
-                                <div class="signal-progress"><span></span></div>
-
-                                <div class="signal-row">
-                                    <span>Project Work</span><strong>--</strong>
-                                </div>
-                                <div class="signal-progress"><span></span></div>
-
-                                <div class="signal-row">
-                                    <span>Class Participation</span><strong>--</strong>
-                                </div>
-                                <div class="signal-progress"><span></span></div>
+                            <div class="signal-list" id="scoringFactors">
+                                <p class="insight-loading">Loading scoring method…</p>
                             </div>
+                            <p class="score-method-note" id="scoreMethodNote"></p>
                         </article>
 
                         <article class="panel segmentation-panel">
@@ -503,19 +485,8 @@
                                 </div>
                             </div>
 
-                            <div class="segment-grid">
-                                <div class="segment-card">
-                                    <span>Distinction</span><strong>--</strong>
-                                </div>
-                                <div class="segment-card">
-                                    <span>Needs Support</span><strong>--</strong>
-                                </div>
-                                <div class="segment-card">
-                                    <span>Eligible for Placement</span><strong>--</strong>
-                                </div>
-                                <div class="segment-card">
-                                    <span>Attendance Shortage</span><strong>--</strong>
-                                </div>
+                            <div class="segment-grid" id="segmentGrid">
+                                <p class="insight-loading">Loading student segments…</p>
                             </div>
                         </article>
                     </div>
@@ -543,6 +514,10 @@
                                 <div><span>MEDIUM</span><strong id="riskMediumCount">--</strong></div>
                                 <div><span>LOW</span><strong id="riskLowCount">--</strong></div>
                             </div>
+                            <div class="placement-risk-summary">
+                                <span>PLACEMENT SUPPORT NEEDED</span>
+                                <strong id="placementRiskCount">--</strong>
+                            </div>
                         </article>
 
                         <article class="panel rule-card">
@@ -558,22 +533,22 @@
                                 <div class="factor">
                                     <span class="factor-number">01</span>
                                     <div>
-                                        <strong>Internal Marks Decline</strong>
-                                        <p>Consecutive drops across class tests and midterms.</p>
+                                        <strong>Overall Success Score</strong>
+                                        <p>HIGH below 60, MEDIUM from 60 to below 80, and LOW at 80 or above.</p>
                                     </div>
                                 </div>
                                 <div class="factor">
                                     <span class="factor-number">02</span>
                                     <div>
-                                        <strong>Low Class Attendance</strong>
-                                        <p>Attendance drops below required threshold of 75%.</p>
+                                        <strong>Engagement Signals</strong>
+                                        <p>Attendance below 75%, LMS score below 60, or engagement below 50 adds a visible support driver.</p>
                                     </div>
                                 </div>
                                 <div class="factor">
                                     <span class="factor-number">03</span>
                                     <div>
-                                        <strong>Missing Submissions</strong>
-                                        <p>Overdue lab records and assignment deadlines.</p>
+                                        <strong>Placement Readiness</strong>
+                                        <p>Placement readiness below 60 and coding below 50 are surfaced for faculty review.</p>
                                     </div>
                                 </div>
                             </div>
@@ -636,13 +611,15 @@
                                         <th>STUDENT</th>
                                         <th>SUCCESS SCORE</th>
                                         <th>ATTENDANCE</th>
-                                        <th>RISK FACTORS</th>
+                                        <th>PLACEMENT RISK</th>
+                                        <th>RISK DRIVERS</th>
                                         <th>RISK</th>
+                                        <th>SEGMENT / NEXT STEP</th>
                                     </tr>
                                 </thead>
                                 <tbody id="riskStudents">
                                     <tr class="empty-row">
-                                        <td colspan="5">Loading risk records…</td>
+                                        <td colspan="7">Loading risk records…</td>
                                     </tr>
                                 </tbody>
                             </table>
@@ -655,7 +632,7 @@
                     <div class="ai-header">
                         <div>
                             <div class="eyebrow">
-                                <span class="eyebrow-dot"></span> ML CLASSIFICATION
+                                <span class="eyebrow-dot"></span> RULE-BASED STUDENT INSIGHTS
                             </div>
                             <h2>Predictive <span>Analysis</span></h2>
                             <p>Look up a student record and review the backend risk classification.</p>
@@ -665,7 +642,7 @@
                             <span class="status-dot"></span>
                             <div>
                                 <strong>STUDENT LOOKUP</strong>
-                                <small>Prediction endpoint not available</small>
+                                <small>Rules-based insights · no trained model</small>
                             </div>
                         </div>
                     </div>
@@ -708,9 +685,8 @@
                             <article class="panel insight-card">
                                 <span class="panel-kicker">MODULE 1</span>
                                 <h3>Early Warning Detection</h3>
-                                <p>Highlight profiles likely to fall short of attendance requirements.</p>
-                                <button class="card-action" data-toast="Connecting to prediction script..."
-                                    type="button">
+                                <p>Review students with low success scores and visible academic or engagement drivers.</p>
+                                <button class="card-action" data-go-page="risk" type="button">
                                     Run Check →
                                 </button>
                             </article>
@@ -718,9 +694,8 @@
                             <article class="panel insight-card">
                                 <span class="panel-kicker">MODULE 2</span>
                                 <h3>Score Breakdown</h3>
-                                <p>Analyze how individual midterms and assignments influence final grades.</p>
-                                <button class="card-action" data-toast="Feature requires model training file."
-                                    type="button">
+                                <p>Inspect the published indicator weights and each student's score contribution.</p>
+                                <button class="card-action" data-go-page="analytics" type="button">
                                     Analyze →
                                 </button>
                             </article>
@@ -728,8 +703,8 @@
                             <article class="panel insight-card accent-card">
                                 <span class="panel-kicker">MODULE 3</span>
                                 <h3>Remedial Suggestions</h3>
-                                <p>Generate remedial practice topics based on test weak points.</p>
-                                <button class="card-action" data-toast="Remedial engine pending." type="button">
+                                <p>Review faculty follow-up suggestions for students in each support segment.</p>
+                                <button class="card-action" data-go-page="students" type="button">
                                     Generate →
                                 </button>
                             </article>

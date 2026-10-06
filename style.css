@@ -2444,6 +2444,180 @@ th {
     display: none;
 }
 
+.student-inspector {
+    max-height: 850px;
+    overflow-y: auto;
+}
+
+.student-insight-section {
+    margin: 18px 20px 0;
+    padding-top: 16px;
+    border-top: 1px solid var(--border);
+}
+
+.insight-intro,
+.segment-explanation p {
+    margin-top: 8px;
+    color: var(--muted);
+    font-size: 10px;
+    line-height: 1.6;
+}
+
+.score-breakdown {
+    display: grid;
+    gap: 11px;
+    margin-top: 14px;
+}
+
+.score-factor-heading {
+    display: flex;
+    justify-content: space-between;
+    gap: 8px;
+    color: #aeb8ca;
+    font-size: 9px;
+}
+
+.score-factor-heading strong {
+    color: var(--text);
+}
+
+.score-factor-track {
+    height: 5px;
+    margin-top: 5px;
+    overflow: hidden;
+    border-radius: 99px;
+    background: rgba(255, 255, 255, 0.06);
+}
+
+.score-factor-track i {
+    height: 100%;
+    display: block;
+    border-radius: inherit;
+    background: linear-gradient(90deg, var(--primary), var(--cyan));
+}
+
+.score-factor small {
+    display: block;
+    margin-top: 4px;
+    color: var(--muted-two);
+    font-size: 8px;
+}
+
+.insight-list {
+    display: grid;
+    gap: 7px;
+    margin: 10px 0 0;
+    padding-left: 16px;
+    color: var(--warning);
+    font-size: 9px;
+    line-height: 1.5;
+}
+
+.insight-clear,
+.insight-loading,
+.insight-error {
+    margin: 10px 0;
+    color: var(--muted);
+    font-size: 9px;
+    line-height: 1.6;
+}
+
+.insight-error {
+    color: var(--danger);
+}
+
+.segment-explanation h4 {
+    margin-top: 10px;
+    color: var(--text);
+    font-size: 12px;
+}
+
+.segment-explanation > strong {
+    display: block;
+    margin-top: 12px;
+    color: #c5ceff;
+    font-size: 9px;
+}
+
+.score-method-note {
+    margin: 0 20px 18px;
+    color: var(--muted-two);
+    font-size: 8px;
+    line-height: 1.6;
+}
+
+.segment-card {
+    width: 100%;
+    min-width: 0;
+    text-align: left;
+    color: inherit;
+    cursor: pointer;
+    transition: background 0.2s ease, border-color 0.2s ease;
+}
+
+.segment-card:hover {
+    background: rgba(154, 168, 255, 0.08);
+    border-color: rgba(154, 168, 255, 0.24);
+}
+
+.segment-card strong {
+    font-size: 24px;
+}
+
+.segment-card small {
+    color: var(--muted-two);
+    font-size: 8px;
+    line-height: 1.5;
+}
+
+.risk-record-panel {
+    margin-top: 14px;
+}
+
+.segment-filter-notice {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    margin: 0 16px 12px;
+    padding: 8px 10px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--muted);
+    font-size: 10px;
+}
+
+.segment-filter-notice strong {
+    color: var(--text);
+}
+
+.segment-filter-notice button {
+    padding: 4px 8px;
+    border: 0;
+    border-radius: 5px;
+    background: rgba(154, 168, 255, 0.12);
+    color: #c5ceff;
+    cursor: pointer;
+    font: inherit;
+}
+
+.placement-risk-summary {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    margin-top: 16px;
+    padding-top: 12px;
+    border-top: 1px solid var(--border);
+    color: var(--muted);
+    font-size: 9px;
+}
+
+.placement-risk-summary strong {
+    color: var(--warning);
+    font-size: 18px;
+}
+
 .connection-card[data-state="connected"] .status-dot {
     background: var(--success);
     box-shadow: 0 0 12px rgba(111, 225, 174, 0.65);
