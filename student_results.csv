@@ -1,0 +1,51 @@
+student_id,department,cgpa,attendance,lms_score,engagement,coding_score,skills_score,placement_score,feedback_score,success_score,risk,risk_factors
+STU001,CSE,9.2,94,91,88,92,90,89,93,91.35,LOW,No major risk factors
+STU002,CSE,8.8,89,86,84,85,87,83,88,86.55,LOW,No major risk factors
+STU003,ECE,8.5,91,84,82,80,85,81,86,84.65,LOW,No major risk factors
+STU004,ME,7.9,82,78,75,72,77,70,80,77.2,MEDIUM,No major risk factors
+STU005,CIVIL,7.5,78,72,70,65,71,63,76,72.0,MEDIUM,No major risk factors
+STU006,CSE,9.0,96,94,91,95,92,94,95,93.2,LOW,No major risk factors
+STU007,ECE,8.2,85,80,78,76,81,75,82,80.35,LOW,No major risk factors
+STU008,CSE,7.1,68,62,65,58,61,55,70,64.6,MEDIUM,No major risk factors
+STU009,ME,6.8,61,55,58,52,54,48,65,58.7,HIGH,Low placement readiness
+STU010,CIVIL,6.2,55,48,51,45,49,42,58,52.35,HIGH,"Low attendance, Low LMS performance, Low coding performance, Low skills score, Low placement readiness"
+STU011,CSE,8.7,92,89,86,88,90,85,91,88.55,LOW,No major risk factors
+STU012,ECE,7.8,79,74,72,68,73,65,78,74.15,MEDIUM,No major risk factors
+STU013,ME,8.1,84,81,79,77,80,74,83,80.25,LOW,No major risk factors
+STU014,CIVIL,7.3,73,68,66,60,65,58,72,67.85,MEDIUM,No major risk factors
+STU015,CSE,6.5,58,52,49,43,51,40,60,53.8,HIGH,"Low attendance, Low engagement, Low coding performance, Low placement readiness"
+STU016,ECE,9.1,95,92,90,91,94,90,94,92.15,LOW,No major risk factors
+STU017,CSE,8.4,87,83,81,79,84,78,86,83.1,LOW,No major risk factors
+STU018,ME,7.6,76,71,69,64,70,60,74,70.95,MEDIUM,No major risk factors
+STU019,CIVIL,6.9,64,59,55,50,57,46,67,59.75,HIGH,Low placement readiness
+STU020,CSE,5.9,48,42,45,38,44,35,52,46.7,HIGH,"Low attendance, Low LMS performance, Low engagement, Low coding performance, Low skills score, Low placement readiness"
+STU021,ECE,8.9,93,90,87,89,91,88,92,89.95,LOW,No major risk factors
+STU022,CSE,8.0,81,77,75,73,76,69,80,77.0,MEDIUM,No major risk factors
+STU023,ME,7.2,67,61,63,55,60,52,68,63.4,MEDIUM,No major risk factors
+STU024,CIVIL,6.4,52,46,48,41,45,38,55,50.2,HIGH,"Low attendance, Low LMS performance, Low engagement, Low coding performance, Low skills score, Low placement readiness"
+STU025,CSE,9.3,97,95,93,96,95,96,97,95.1,LOW,No major risk factors
+STU026,ECE,8.6,88,85,83,82,86,80,87,84.95,LOW,No major risk factors
+STU027,CSE,7.7,74,69,71,66,68,61,75,70.95,MEDIUM,No major risk factors
+STU028,ME,6.7,59,51,54,47,50,43,62,55.5,HIGH,"Low attendance, Low coding performance, Low placement readiness"
+STU029,CIVIL,7.0,70,64,62,57,63,50,69,64.2,MEDIUM,No major risk factors
+STU030,CSE,8.3,86,82,80,78,83,77,85,82.1,LOW,No major risk factors
+STU031,ECE,7.4,72,67,65,59,64,55,71,67.05,MEDIUM,No major risk factors
+STU032,CSE,6.1,54,49,46,40,47,36,57,50.25,HIGH,"Low attendance, Low LMS performance, Low engagement, Low coding performance, Low skills score, Low placement readiness"
+STU033,ME,8.0,83,79,77,74,78,71,81,78.4,MEDIUM,No major risk factors
+STU034,CIVIL,7.8,80,76,73,69,75,66,79,75.2,MEDIUM,No major risk factors
+STU035,CSE,9.0,92,91,89,90,91,88,93,90.55,LOW,No major risk factors
+STU036,ECE,6.6,57,53,50,44,52,41,59,54.3,HIGH,"Low attendance, Low coding performance, Low placement readiness"
+STU037,ME,7.5,75,70,68,63,69,57,73,69.75,MEDIUM,No major risk factors
+STU038,CIVIL,8.2,85,81,79,76,82,74,84,80.8,LOW,No major risk factors
+STU039,CSE,7.0,63,58,56,51,55,47,66,59.65,HIGH,Low placement readiness
+STU040,ECE,5.8,46,40,43,35,42,32,50,44.7,HIGH,"Low attendance, Low LMS performance, Low engagement, Low coding performance, Low skills score, Low placement readiness"
+STU041,CSE,8.9,90,87,85,86,89,84,91,87.85,LOW,No major risk factors
+STU042,ME,7.9,78,75,72,70,74,65,79,74.75,MEDIUM,No major risk factors
+STU043,CIVIL,6.8,62,56,59,49,55,45,64,58.5,HIGH,"Low coding performance, Low placement readiness"
+STU044,CSE,8.5,88,84,82,81,85,80,87,84.3,LOW,No major risk factors
+STU045,ECE,7.2,69,63,61,56,62,51,70,64.2,MEDIUM,No major risk factors
+STU046,ME,6.0,50,44,47,39,46,34,54,48.1,HIGH,"Low attendance, Low LMS performance, Low engagement, Low coding performance, Low skills score, Low placement readiness"
+STU047,CIVIL,7.6,77,73,70,65,72,59,76,71.9,MEDIUM,No major risk factors
+STU048,CSE,9.1,94,93,90,92,94,91,95,92.45,LOW,No major risk factors
+STU049,ECE,8.1,82,78,76,74,79,70,82,78.3,MEDIUM,No major risk factors
+STU050,CSE,6.3,56,50,52,42,48,39,58,52.4,HIGH,"Low attendance, Low coding performance, Low skills score, Low placement readiness"
