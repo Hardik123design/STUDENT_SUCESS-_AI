@@ -5,8 +5,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Student Success Dashboard</title>
-    <link rel="stylesheet" href="style.css?v=20261006-student-analysis-open">
-    <script src="script.js?v=20261006-student-analysis-open" defer></script>
+    <link rel="stylesheet" href="style.css?v=20261006-prediction-working">
+    <script src="script.js?v=20261006-prediction-working" defer></script>
 </head>
 
 <body>
@@ -676,17 +676,44 @@
                                 <span class="eyebrow-dot"></span> RULE-BASED STUDENT INSIGHTS
                             </div>
                             <h2>Predictive <span>Analysis</span></h2>
-                            <p>Look up a student record and review the backend risk classification.</p>
+                            <p>Review current cohort risk signals, prioritize follow-ups, and inspect an individual student.</p>
                         </div>
 
                         <div class="ai-status-card">
                             <span class="status-dot"></span>
                             <div>
-                                <strong>STUDENT LOOKUP</strong>
-                                <small>Rules-based insights · no trained model</small>
+                                <strong>LIVE EARLY-WARNING CHECK</strong>
+                                <small>Current records · rules-based, not a forecast</small>
                             </div>
                         </div>
                     </div>
+
+                    <article class="panel prediction-overview" aria-labelledby="predictionOverviewTitle">
+                        <div class="prediction-overview-head">
+                            <div>
+                                <span class="panel-kicker">LIVE COHORT CHECK</span>
+                                <h3 id="predictionOverviewTitle">Current support outlook</h3>
+                                <p>Counts update from the loaded records. Academic and placement support flags are separate rule-based signals.</p>
+                            </div>
+                            <span class="prediction-data-state" id="predictionDataState" aria-live="polite">Waiting for student records</span>
+                        </div>
+                        <div class="prediction-metrics" id="predictionMetrics" aria-live="polite">
+                            <div class="prediction-metric"><span>High academic risk</span><strong id="predictionHighCount">—</strong><small>Success score below 60</small></div>
+                            <div class="prediction-metric"><span>Medium academic risk</span><strong id="predictionMediumCount">—</strong><small>Success score 60 to below 80</small></div>
+                            <div class="prediction-metric"><span>Placement support</span><strong id="predictionPlacementCount">—</strong><small>Medium or high placement risk</small></div>
+                            <div class="prediction-metric prediction-metric-total"><span>Students to review</span><strong id="predictionReviewCount">—</strong><small>Unique students with either flag</small></div>
+                        </div>
+                        <div class="prediction-priority">
+                            <div class="prediction-priority-head">
+                                <div><span class="panel-kicker">NEXT STEPS</span><h4>Priority follow-ups</h4></div>
+                                <button class="card-action" data-go-page="risk" type="button">Open risk records →</button>
+                            </div>
+                            <div class="prediction-priority-list" id="predictionPriorityList" aria-live="polite">
+                                <p class="prediction-empty">Student records will appear here when the backend connects.</p>
+                            </div>
+                        </div>
+                        <p class="prediction-disclaimer">This dashboard applies the published score and risk thresholds to current records. It does not estimate future performance or replace faculty review.</p>
+                    </article>
 
                     <div class="ai-grid">
                         <article class="panel ai-main-panel">
@@ -694,7 +721,7 @@
                                 <div class="ai-orb">✦</div>
                                 <div>
                                     <span class="panel-kicker">STUDENT RECORD</span>
-                                            <h3>Backend Student Lookup</h3>
+                                    <h3>Individual Student Analysis</h3>
                                 </div>
                             </div>
 
@@ -704,8 +731,7 @@
                                     <span></span><span></span><span></span><span></span>
                                 </div>
                                 <h3>No query submitted</h3>
-                                <p>Enter a student ID to load its backend record. Predictive model results are not
-                                provided by the current API.</p>
+                                <p>Enter a student ID, or choose a priority case above, to review the student's current risk factors and recommended support.</p>
 
                                 <div class="ai-tags">
                                     <span>Student Records</span>
@@ -717,8 +743,9 @@
 
                             <div class="ai-input-area">
                                 <input id="aiPrompt" type="text" placeholder="Enter a student ID, e.g. STU001..."
-                                    autocomplete="off">
-                                <button id="aiSend" type="button">→</button>
+                                    autocomplete="off" list="predictionStudentOptions" aria-label="Student ID">
+                                <datalist id="predictionStudentOptions"></datalist>
+                                <button id="aiSend" type="button" aria-label="Analyze student">Analyze →</button>
                             </div>
                         </article>
 

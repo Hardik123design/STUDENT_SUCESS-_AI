@@ -5388,3 +5388,252 @@ body.reduce-motion *::after {
         padding: 12px 14px;
     }
 }
+
+.prediction-overview {
+    display: grid;
+    gap: 20px;
+    margin-bottom: 18px;
+    padding: 22px;
+}
+
+.prediction-overview-head,
+.prediction-priority-head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+}
+
+.prediction-overview-head h3,
+.prediction-priority-head h4 {
+    margin-top: 5px;
+    color: var(--text);
+}
+
+.prediction-overview-head h3 {
+    font-size: 20px;
+}
+
+.prediction-overview-head p {
+    max-width: 720px;
+    margin-top: 7px;
+    color: var(--muted);
+    font-size: 12px;
+    line-height: 1.55;
+}
+
+.prediction-data-state {
+    flex-shrink: 0;
+    padding: 8px 11px;
+    border: 1px solid #ead9dc;
+    border-radius: 999px;
+    color: #6d2733;
+    background: #fff6f7;
+    font-size: 10px;
+    font-weight: 800;
+}
+
+.prediction-metrics {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 12px;
+}
+
+.prediction-metric {
+    display: grid;
+    min-height: 112px;
+    align-content: space-between;
+    gap: 8px;
+    padding: 15px;
+    border: 1px solid var(--border);
+    border-top: 3px solid #b31a32;
+    border-radius: 12px;
+    background: #fff;
+}
+
+.prediction-metric span {
+    color: #55555c;
+    font-size: 11px;
+    font-weight: 750;
+}
+
+.prediction-metric strong {
+    color: #222226;
+    font-size: 29px;
+    line-height: 1;
+}
+
+.prediction-metric small {
+    color: #77777e;
+    font-size: 10px;
+}
+
+.prediction-metric-total {
+    border-top-color: #252529;
+}
+
+.prediction-priority {
+    display: grid;
+    gap: 12px;
+}
+
+.prediction-priority-head {
+    align-items: center;
+}
+
+.prediction-priority-head h4 {
+    font-size: 15px;
+}
+
+.prediction-priority-head .card-action {
+    flex-shrink: 0;
+}
+
+.prediction-priority-list {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 9px;
+}
+
+.prediction-priority-item {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto auto;
+    align-items: center;
+    gap: 11px;
+    min-width: 0;
+    padding: 12px;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    color: var(--text);
+    background: #fff;
+    text-align: left;
+    transition: border-color .16s ease, transform .16s ease;
+}
+
+.prediction-priority-item:hover {
+    transform: translateY(-1px);
+    border-color: #dba0a9;
+}
+
+.prediction-priority-risk {
+    padding: 6px 7px;
+    border-radius: 6px;
+    font-size: 9px;
+    font-weight: 900;
+}
+
+.prediction-priority-risk.risk-high {
+    color: #a1122a;
+    background: #fff0f2;
+}
+
+.prediction-priority-risk.risk-medium {
+    color: #86530a;
+    background: #fff6e7;
+}
+
+.prediction-priority-main {
+    display: grid;
+    gap: 4px;
+    min-width: 0;
+}
+
+.prediction-priority-main strong,
+.prediction-priority-score {
+    color: #242428;
+    font-size: 12px;
+    font-weight: 800;
+}
+
+.prediction-priority-main small,
+.prediction-priority-score small {
+    color: #77777e;
+    font-size: 10px;
+    font-weight: 500;
+}
+
+.prediction-priority-score {
+    display: grid;
+    gap: 3px;
+    text-align: right;
+}
+
+.prediction-priority-action {
+    color: #a1122a;
+    font-size: 10px;
+    font-weight: 800;
+    white-space: nowrap;
+}
+
+.prediction-empty,
+.prediction-disclaimer {
+    color: var(--muted);
+    font-size: 11px;
+    line-height: 1.6;
+}
+
+.prediction-disclaimer {
+    padding-top: 12px;
+    border-top: 1px solid var(--border);
+}
+
+.ai-input-area button {
+    width: auto;
+    min-width: 88px;
+    padding: 0 13px;
+    font-size: 12px;
+}
+
+@media (max-width: 900px) {
+    .prediction-metrics {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .prediction-priority-list {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 620px) {
+    .prediction-overview {
+        gap: 16px;
+        padding: 17px;
+    }
+
+    .prediction-overview-head,
+    .prediction-priority-head {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .prediction-data-state {
+        white-space: normal;
+    }
+
+    .prediction-metrics {
+        gap: 8px;
+    }
+
+    .prediction-metric {
+        min-height: 102px;
+        padding: 12px;
+    }
+
+    .prediction-metric strong {
+        font-size: 24px;
+    }
+
+    .prediction-priority-item {
+        grid-template-columns: auto minmax(0, 1fr) auto;
+    }
+
+    .prediction-priority-action {
+        grid-column: 2 / -1;
+        justify-self: end;
+    }
+
+    .ai-input-area button {
+        min-width: 72px;
+        padding: 0 8px;
+    }
+}

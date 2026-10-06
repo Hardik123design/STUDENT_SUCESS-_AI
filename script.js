@@ -666,6 +666,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     function renderRiskTable() {
         const tableBody = document.getElementById("riskStudents");
+        renderPredictionOverview();
         if (!tableBody) return;
         const flagged = getInterventionCandidates();
         setText("riskRecordCount", flagged.length);
@@ -704,6 +705,80 @@ document.addEventListener("DOMContentLoaded", function () {
         }).join("") : '<tr class="empty-row"><td colspan="7"><div class="table-empty">' +
             '<strong>No students flagged</strong><span>All available records are currently in good standing.</span>' +
             '</div></td></tr>';
+    }
+
+    function renderPredictionOverview() {
+        const priorityList = document.getElementById("predictionPriorityList");
+        if (!priorityList) return;
+        const dataState = document.getElementById("predictionDataState");
+        const inputOptions = document.getElementById("predictionStudentOptions");
+        if (!students.length) {
+            if (dataState) dataState.textContent = "Student records unavailable";
+            priorityList.innerHTML = '<p class="prediction-empty">No student records are available. Check the backend connection and reload.</p>';
+            ["predictionHighCount", "predictionMediumCount", "predictionPlacementCount", "predictionReviewCount"]
+                .forEach(function (id) { setText(id, "—"); });
+            return;
+        }
+
+        const count = function (predicate) {
+            return students.filter(predicate).length;
+        };
+        const highCount = count(function (student) { return String(student.risk).toUpperCase() === "HIGH"; });
+        const mediumCount = count(function (student) { return String(student.risk).toUpperCase() === "MEDIUM"; });
+        const placementCount = count(function (student) {
+            return ["HIGH", "MEDIUM"].includes(String(student.placement_risk || "").toUpperCase());
+        });
+        const candidates = getInterventionCandidates();
+
+        setText("predictionHighCount", highCount);
+        setText("predictionMediumCount", mediumCount);
+        setText("predictionPlacementCount", placementCount);
+        setText("predictionReviewCount", candidates.length);
+        if (dataState) dataState.textContent = importedDataset
+            ? "Session CSV · " + students.length + " records"
+            : "Backend connected · " + students.length + " records";
+        if (inputOptions) {
+            inputOptions.innerHTML = students.map(function (student) {
+                return '<option value="' + escapeHtml(student.student_id) + '"></option>';
+            }).join("");
+        }
+
+        const severity = function (student) {
+            const levels = { HIGH: 2, MEDIUM: 1 };
+            return Math.max(
+                levels[String(student.risk || "").toUpperCase()] || 0,
+                levels[String(student.placement_risk || "").toUpperCase()] || 0
+            );
+        };
+        const prioritized = candidates.slice().sort(function (left, right) {
+            return severity(right) - severity(left) ||
+                (Number(left.success_score) || 0) - (Number(right.success_score) || 0) ||
+                String(left.student_id).localeCompare(String(right.student_id));
+        }).slice(0, 5);
+        priorityList.innerHTML = prioritized.length ? prioritized.map(function (student) {
+            const risk = severity(student) === 2 ? "HIGH" : "MEDIUM";
+            const drivers = Array.isArray(student.risk_drivers) ? student.risk_drivers.length : 0;
+            return '<button class="prediction-priority-item" type="button" data-prediction-student="' +
+                escapeHtml(student.student_id) + '"><span class="prediction-priority-risk risk-' +
+                riskClass(risk) + '">' + risk + '</span><span class="prediction-priority-main"><strong>' +
+                escapeHtml(student.student_id) + '</strong><small>' +
+                escapeHtml(student.department || "Department unavailable") + ' · ' + drivers +
+                (drivers === 1 ? ' risk driver' : ' risk drivers') + '</small></span><span class="prediction-priority-score">' +
+                escapeHtml(Number.isFinite(Number(student.success_score)) ?
+                    Number(student.success_score).toFixed(1) : "—") +
+                '<small>score</small></span><span class="prediction-priority-action">Review →</span></button>';
+        }).join("") : '<p class="prediction-empty">No current academic or placement flags. Continue routine reviews.</p>';
+
+        priorityList.querySelectorAll("[data-prediction-student]").forEach(function (button) {
+            button.addEventListener("click", function () {
+                const student = students.find(function (record) {
+                    return String(record.student_id) === button.dataset.predictionStudent;
+                });
+                if (!student) return;
+                switchTab("students");
+                renderStudentDetails(student, true);
+            });
+        });
     }
 
     function getInterventionCandidates() {
@@ -1344,6 +1419,7 @@ document.addEventListener("DOMContentLoaded", function () {
             });
         } catch (error) {
             setConnectionState(false, "Cannot reach API at " + API_BASE_URL + " · " + error.message);
+            renderPredictionOverview();
             if (studentEmpty) {
                 studentEmpty.hidden = false;
                 const paragraph = studentEmpty.querySelector("p");
