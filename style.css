@@ -2587,6 +2587,10 @@ th {
     font-size: 10px;
 }
 
+.segment-filter-notice[hidden] {
+    display: none;
+}
+
 .segment-filter-notice strong {
     color: var(--text);
 }
