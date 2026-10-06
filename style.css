@@ -2823,6 +2823,90 @@ th {
     font-size: 10px;
 }
 
+.panel-actions {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: 14px;
+}
+
+.scenario-section {
+    margin-bottom: 20px;
+    padding-bottom: 16px;
+}
+
+.scenario-controls {
+    display: grid;
+    gap: 12px;
+    margin-top: 12px;
+}
+
+.scenario-control {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 7px 12px;
+    color: var(--text);
+    font-size: 9px;
+}
+
+.scenario-control > span {
+    align-self: center;
+}
+
+.scenario-control > strong {
+    color: var(--primary);
+    font-size: 9px;
+}
+
+.scenario-control input {
+    grid-column: 1 / -1;
+    width: 100%;
+    accent-color: var(--primary);
+    cursor: pointer;
+}
+
+.scenario-result {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 15px;
+    padding: 12px;
+    border: 1px solid var(--border);
+    border-radius: 11px;
+    background: var(--bg-soft);
+}
+
+.scenario-result > div {
+    display: grid;
+    gap: 4px;
+}
+
+.scenario-result > div > span {
+    color: var(--muted-two);
+    font-size: 7px;
+    font-weight: 900;
+    letter-spacing: 0.08em;
+}
+
+.scenario-result > div > strong {
+    color: var(--text);
+    font-size: 15px;
+}
+
+.scenario-disclaimer {
+    margin-top: 9px;
+    color: var(--muted);
+    font-size: 8px;
+    line-height: 1.55;
+}
+
+.risk-record-panel .panel-actions .ghost-button:first-child {
+    color: var(--primary);
+}
+
 @media (max-width: 520px) {
     .student-record {
         gap: 7px;
@@ -2832,6 +2916,15 @@ th {
     .student-risk {
         padding: 4px;
         font-size: 7px;
+    }
+
+    .risk-record-panel .panel-head {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .panel-actions {
+        justify-content: flex-start;
     }
 }
 

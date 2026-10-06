@@ -157,6 +157,10 @@ document.addEventListener("DOMContentLoaded", function () {
         return "stable";
     }
 
+    function displayScore(score) {
+        return (Math.round((score + Number.EPSILON) * 10) / 10).toFixed(1);
+    }
+
     function renderStudentDirectory() {
         if (!studentDirectory) return;
         const query = studentSearch ? studentSearch.value.trim().toLowerCase() : "";
@@ -209,6 +213,67 @@ document.addEventListener("DOMContentLoaded", function () {
         if (!inspector) return;
         const scoreBreakdown = Array.isArray(student.score_breakdown) ? student.score_breakdown : [];
         const riskDrivers = Array.isArray(student.risk_drivers) ? student.risk_drivers : [];
+        const scenarioPlans = {
+            academic_recovery: [
+                { key: "cgpa", increase: 0.5 },
+                { key: "attendance", increase: 5 }
+            ],
+            academic_placement_support: [
+                { key: "placement_score", increase: 10 },
+                { key: "coding_score", increase: 10 }
+            ],
+            placement_ready: [
+                { key: "placement_score", increase: 5 },
+                { key: "coding_score", increase: 5 }
+            ],
+            engagement_support: [
+                { key: "attendance", increase: 5 },
+                { key: "lms_score", increase: 10 },
+                { key: "engagement", increase: 10 }
+            ],
+            balanced_progress: [
+                { key: "skills_score", increase: 5 },
+                { key: "feedback_score", increase: 5 }
+            ]
+        };
+        const factorByKey = {};
+        scoreBreakdown.forEach(function (factor) {
+            factorByKey[factor.key] = factor;
+        });
+        const scenarioAdjustments = [];
+        const scenarioInputs = (scenarioPlans[student.segment] || []).filter(function (plan) {
+            return factorByKey[plan.key];
+        }).map(function (plan) {
+            const factor = factorByKey[plan.key];
+            const isCgpa = plan.key === "cgpa";
+            const currentValue = Number(factor.value) || 0;
+            const maxIncrease = Math.max(0, Math.min(isCgpa ? 1 : 20, (isCgpa ? 10 : 100) - currentValue));
+            const initialIncrease = Math.min(plan.increase, maxIncrease);
+            scenarioAdjustments.push({
+                increase: initialIncrease,
+                weight: Number(factor.weight) || 0,
+                multiplier: isCgpa ? 10 : 1
+            });
+            return '<label class="scenario-control" for="scenario-' + escapeHtml(plan.key) + '">' +
+                '<span>' + escapeHtml(factor.label) + '</span><strong><output id="scenario-value-' +
+                escapeHtml(plan.key) + '">' + initialIncrease.toFixed(isCgpa ? 1 : 0) +
+                '</output>' + (isCgpa ? '/10' : ' pts') + '</strong><input type="range" id="scenario-' +
+                escapeHtml(plan.key) + '" data-scenario-factor="' + escapeHtml(plan.key) +
+                '" data-weight="' + escapeHtml(factor.weight) + '" data-multiplier="' +
+                (isCgpa ? "10" : "1") + '" min="0" max="' +
+                maxIncrease + '" step="' + (isCgpa ? "0.1" : "1") + '" value="' +
+                initialIncrease + '"></label>';
+        }).join("");
+        const currentScore = Number(student.success_score) || 0;
+        const initialLift = scenarioAdjustments.reduce(function (sum, adjustment) {
+            return sum + adjustment.increase * adjustment.multiplier * adjustment.weight;
+        }, 0);
+        const riskBandForScore = function (score) {
+            if (score >= 80) return "LOW";
+            if (score >= 60) return "MEDIUM";
+            return "HIGH";
+        };
+        const initialProjectedScore = Math.min(100, currentScore + initialLift);
         const breakdownMarkup = scoreBreakdown.map(function (factor) {
             const normalizedValue = Math.max(0, Math.min(100, Number(factor.normalized_value) || 0));
             const value = Number(factor.value) || 0;
@@ -245,7 +310,48 @@ document.addEventListener("DOMContentLoaded", function () {
             escapeHtml(student.recommended_action || "Review the student record with faculty.") +
             '</p><strong>Placement risk</strong><p>' + escapeHtml(student.placement_risk || "Unavailable") +
             ' · placement score ' + escapeHtml(student.placement_score) + ', coding score ' +
-            escapeHtml(student.coding_score) + '</p></section>';
+            escapeHtml(student.coding_score) + '</p></section><section class="student-insight-section scenario-section">' +
+            '<span class="panel-kicker">WHAT-IF PLANNING SANDBOX</span><p class="insight-intro">Starter targets are editable examples. Explore the weighted-score arithmetic if proposed gains are achieved.</p>' +
+            '<div class="scenario-controls">' + (scenarioInputs || '<p class="insight-clear">Scenario factors are unavailable for this student.</p>') +
+            '</div><div class="scenario-result"><div><span>ILLUSTRATIVE SCORE</span><strong id="scenarioScore">' +
+            displayScore(initialProjectedScore) + '</strong></div><div><span>CHANGE</span><strong id="scenarioChange">+' +
+            (initialProjectedScore - currentScore).toFixed(2) + ' pts</strong></div><span class="student-risk risk-' +
+            riskClass(riskBandForScore(initialProjectedScore)) + '" id="scenarioBand">' +
+            riskBandForScore(initialProjectedScore) + ' band</span></div>' +
+            '<p class="scenario-disclaimer">Assumes chosen gains are achieved. Illustrative arithmetic only—not a prediction, causal estimate, or saved change. Faculty must validate feasible targets.</p></section>';
+
+        const scenarioSection = inspector.querySelector(".scenario-section");
+        if (scenarioSection) {
+            scenarioSection.querySelectorAll("[data-scenario-factor]").forEach(function (input) {
+                input.addEventListener("input", function () {
+                    const improvement = Number(input.value) || 0;
+                    const multiplier = Number(input.dataset.multiplier) || 1;
+                    const weight = Number(input.dataset.weight) || 0;
+                    const valueOutput = document.getElementById("scenario-value-" + input.dataset.scenarioFactor);
+                    if (valueOutput) {
+                        valueOutput.textContent = improvement.toFixed(multiplier === 10 ? 1 : 0);
+                    }
+                    const lift = Array.from(scenarioSection.querySelectorAll("[data-scenario-factor]"))
+                        .reduce(function (sum, control) {
+                            return sum + (Number(control.value) || 0) *
+                                (Number(control.dataset.multiplier) || 1) *
+                                (Number(control.dataset.weight) || 0);
+                        }, 0);
+                    const projectedScore = Math.min(100, currentScore + lift);
+                    const change = projectedScore - currentScore;
+                    const band = riskBandForScore(projectedScore);
+                    const scoreOutput = document.getElementById("scenarioScore");
+                    const changeOutput = document.getElementById("scenarioChange");
+                    const bandOutput = document.getElementById("scenarioBand");
+                    if (scoreOutput) scoreOutput.textContent = displayScore(projectedScore);
+                    if (changeOutput) changeOutput.textContent = "+" + change.toFixed(2) + " pts";
+                    if (bandOutput) {
+                        bandOutput.textContent = band + " band";
+                        bandOutput.className = "student-risk risk-" + riskClass(band);
+                    }
+                });
+            });
+        }
     }
 
     function renderPriorityTable() {
@@ -279,9 +385,7 @@ document.addEventListener("DOMContentLoaded", function () {
     function renderRiskTable() {
         const tableBody = document.getElementById("riskStudents");
         if (!tableBody) return;
-        const flagged = students.filter(function (student) {
-            return ["HIGH", "MEDIUM"].includes(String(student.risk || "").toUpperCase());
-        });
+        const flagged = getInterventionCandidates();
         tableBody.innerHTML = flagged.length ? flagged.map(function (student) {
             const drivers = Array.isArray(student.risk_drivers) && student.risk_drivers.length
                 ? student.risk_drivers.map(function (driver) {
@@ -300,6 +404,61 @@ document.addEventListener("DOMContentLoaded", function () {
         }).join("") : '<tr class="empty-row"><td colspan="7"><div class="table-empty">' +
             '<strong>No students flagged</strong><span>All available records are currently in good standing.</span>' +
             '</div></td></tr>';
+    }
+
+    function getInterventionCandidates() {
+        return students.filter(function (student) {
+            return ["HIGH", "MEDIUM"].includes(String(student.risk || "").toUpperCase()) ||
+                ["HIGH", "MEDIUM"].includes(String(student.placement_risk || "").toUpperCase());
+        });
+    }
+
+    function csvCell(value) {
+        const text = String(value == null ? "" : value);
+        const safeText = /^[\u0000-\u0020]*[=+\-@]/.test(text) ? "'" + text : text;
+        return '"' + safeText.replace(/"/g, '""') + '"';
+    }
+
+    function exportInterventionPlan() {
+        const candidates = getInterventionCandidates();
+        if (!candidates.length) {
+            showNotification("No academic or placement support cases are available to export.");
+            return;
+        }
+        const rows = [
+            ["Student ID", "Department", "Success Score", "Academic Risk", "Placement Risk",
+                "Risk Drivers", "Support Segment", "Suggested Faculty Action"],
+            ...candidates.map(function (student) {
+                const drivers = Array.isArray(student.risk_drivers)
+                    ? student.risk_drivers.map(function (driver) { return driver.message; }).join("; ")
+                    : "";
+                return [
+                    student.student_id,
+                    student.department,
+                    student.success_score,
+                    student.risk,
+                    student.placement_risk,
+                    drivers,
+                    student.segment_label,
+                    student.recommended_action
+                ];
+            })
+        ];
+        const csv = "\uFEFF" + rows.map(function (row) {
+            return row.map(csvCell).join(",");
+        }).join("\r\n");
+        const url = URL.createObjectURL(new Blob([csv], { type: "text/csv;charset=utf-8" }));
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = "student-intervention-shortlist-" +
+            new Date().toISOString().slice(0, 10) + ".csv";
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+        setTimeout(function () {
+            URL.revokeObjectURL(url);
+        }, 1000);
+        showNotification("Exported " + candidates.length + " support cases to CSV.");
     }
 
     function setText(id, value) {
@@ -572,6 +731,8 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     });
     if (footerYear) footerYear.textContent = new Date().getFullYear();
+    const exportButton = document.getElementById("exportInterventionPlan");
+    if (exportButton) exportButton.addEventListener("click", exportInterventionPlan);
     switchTab("overview");
     loadDashboard();
 });

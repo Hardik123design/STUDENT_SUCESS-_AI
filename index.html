@@ -5,8 +5,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Student Success Dashboard</title>
-    <link rel="stylesheet" href="style.css?v=20261006-red-theme">
-    <script src="script.js?v=20261006-red-theme" defer></script>
+    <link rel="stylesheet" href="style.css?v=20261006-action-center">
+    <script src="script.js?v=20261006-action-center" defer></script>
 </head>
 
 <body>
@@ -507,7 +507,7 @@
                         <article class="panel risk-overview-card">
                             <span class="panel-kicker">SUMMARY</span>
                             <div class="risk-big" id="flaggedStudents">--</div>
-                            <p>Students classified as high or medium risk by the backend</p>
+                            <p>Students flagged for academic or placement support</p>
 
                             <div class="risk-mini-grid">
                                 <div><span>HIGH</span><strong id="riskHighCount">--</strong></div>
@@ -600,9 +600,14 @@
                                 <span class="panel-kicker">LIVE RECORDS</span>
                                 <h3>Students Requiring Attention</h3>
                             </div>
-                            <button class="ghost-button" data-go-page="students" type="button">
-                                Open directory →
-                            </button>
+                            <div class="panel-actions">
+                                <button class="ghost-button" id="exportInterventionPlan" type="button">
+                                    Export action plan ↓
+                                </button>
+                                <button class="ghost-button" data-go-page="students" type="button">
+                                    Open directory →
+                                </button>
+                            </div>
                         </div>
                         <div class="table-wrap">
                             <table>

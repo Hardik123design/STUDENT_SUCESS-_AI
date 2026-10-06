@@ -22,6 +22,18 @@ The Student Success Score is the sum of those contributions. The API returns
 each normalized input, its weight, and its contribution so faculty can inspect
 how a student's score was formed.
 
+## What-if support planning
+
+The student detail view includes an illustrative scenario sandbox. It offers
+editable indicator gains based on the student's support segment and recalculates
+the weighted score using the same published factor weights. CGPA gains use the
+0-10 scale; all other gains use percentage points and are capped at each
+indicator's maximum.
+
+These scenarios are arithmetic demonstrations only. They do not predict the
+effect of an intervention, establish causality, or change the student's saved
+record. Proposed targets must be reviewed for feasibility by faculty.
+
 ## Risk bands and drivers
 
 - **LOW:** score of 80 or above
