@@ -5,8 +5,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Student Success Dashboard</title>
-    <link rel="stylesheet" href="style.css?v=20261006-settings-help">
-    <script src="script.js?v=20261006-settings-help" defer></script>
+    <link rel="stylesheet" href="style.css?v=20261006-risk-records-spaced">
+    <script src="script.js?v=20261006-risk-records-spaced" defer></script>
 </head>
 
 <body>
@@ -427,7 +427,7 @@
                             <div class="profile-placeholder">
                                 <div class="profile-avatar">?</div>
                                 <h3>No selection</h3>
-                                <p>Choose a student entry from the directory to review their semester logs.</p>
+                                <p>Choose a student entry to review their current indicators, risk factors, and department comparison.</p>
                             </div>
 
                             <div class="placeholder-stats">
@@ -517,17 +517,39 @@
 
                     <div class="risk-dashboard">
                         <article class="panel risk-overview-card">
-                            <span class="panel-kicker">SUMMARY</span>
-                            <div class="risk-big" id="flaggedStudents">--</div>
-                            <p>Students flagged for academic or placement support</p>
+                            <div class="risk-summary-heading">
+                                <div>
+                                    <span class="panel-kicker">COHORT RISK</span>
+                                    <h3>Students needing review</h3>
+                                </div>
+                                <span class="risk-status-chip">RULE-BASED</span>
+                            </div>
+
+                            <div class="risk-total-line">
+                                <div class="risk-big" id="flaggedStudents">--</div>
+                                <div class="risk-total-context">
+                                    <strong>students flagged</strong>
+                                    <span>of <b id="riskTotalStudents">--</b> records</span>
+                                </div>
+                            </div>
+                            <div class="risk-distribution" id="riskDistribution"
+                                role="img" aria-label="Risk distribution unavailable">
+                                <i class="risk-distribution-high" id="riskHighBar"></i>
+                                <i class="risk-distribution-medium" id="riskMediumBar"></i>
+                                <i class="risk-distribution-low" id="riskLowBar"></i>
+                            </div>
+                            <div class="risk-distribution-caption">
+                                <span>Risk distribution across current records</span>
+                                <span>Updated with dataset</span>
+                            </div>
 
                             <div class="risk-mini-grid">
-                                <div><span>HIGH</span><strong id="riskHighCount">--</strong></div>
-                                <div><span>MEDIUM</span><strong id="riskMediumCount">--</strong></div>
-                                <div><span>LOW</span><strong id="riskLowCount">--</strong></div>
+                                <div class="risk-level-high"><span>HIGH</span><strong id="riskHighCount">--</strong></div>
+                                <div class="risk-level-medium"><span>MEDIUM</span><strong id="riskMediumCount">--</strong></div>
+                                <div class="risk-level-low"><span>LOW</span><strong id="riskLowCount">--</strong></div>
                             </div>
                             <div class="placement-risk-summary">
-                                <span>PLACEMENT SUPPORT NEEDED</span>
+                                <div><span>PLACEMENT SUPPORT NEEDED</span><small>Separate readiness flag</small></div>
                                 <strong id="placementRiskCount">--</strong>
                             </div>
                         </article>
@@ -611,8 +633,10 @@
                             <div>
                                 <span class="panel-kicker">LIVE RECORDS</span>
                                 <h3>Students Requiring Attention</h3>
+                                <p class="risk-table-caption">Priority cases from the current student dataset</p>
                             </div>
                             <div class="panel-actions">
+                                <span class="risk-record-count"><strong id="riskRecordCount">--</strong> cases</span>
                                 <button class="ghost-button" id="exportInterventionPlan" type="button">
                                     Export action plan ↓
                                 </button>
@@ -626,12 +650,12 @@
                                 <thead>
                                     <tr>
                                         <th>STUDENT</th>
-                                        <th>SUCCESS SCORE</th>
+                                        <th>SUCCESS</th>
                                         <th>ATTENDANCE</th>
                                         <th>PLACEMENT RISK</th>
                                         <th>RISK DRIVERS</th>
                                         <th>RISK</th>
-                                        <th>SEGMENT / NEXT STEP</th>
+                                        <th>SUPPORT PLAN</th>
                                     </tr>
                                 </thead>
                                 <tbody id="riskStudents">

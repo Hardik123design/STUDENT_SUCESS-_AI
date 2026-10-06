@@ -350,7 +350,48 @@ document.addEventListener("DOMContentLoaded", function () {
         const currentScore = Number(student.success_score) || 0;
         const currentIntervention = interventionRecords[String(student.student_id)] || {};
         const studentPeers = students.filter(function (candidate) {
-            return String(candidate.department || "") === String(student.department || "");
+            return String(candidate.department || "") === String(student.department || "") &&
+                String(candidate.student_id) !== String(student.student_id);
+        });
+        const graphMetrics = [
+            { label: "Student success score", key: "success_score", scale: 1, unit: "/100" },
+            { label: "Academic performance (CGPA)", key: "cgpa", scale: 10, unit: "/10" },
+            { label: "Attendance", key: "attendance", scale: 1, unit: "%" },
+            { label: "LMS performance", key: "lms_score", scale: 1, unit: "%" },
+            { label: "Engagement", key: "engagement", scale: 1, unit: "%" },
+            { label: "Coding", key: "coding_score", scale: 1, unit: "%" },
+            { label: "Skills", key: "skills_score", scale: 1, unit: "%" },
+            { label: "Placement readiness", key: "placement_score", scale: 1, unit: "%" },
+            { label: "Student feedback", key: "feedback_score", scale: 1, unit: "%" }
+        ];
+        const indicatorData = graphMetrics.map(function (metric) {
+            const rawStudentValue = student[metric.key];
+            const studentValue = rawStudentValue === null || rawStudentValue === undefined || rawStudentValue === ""
+                ? null : Number(rawStudentValue);
+            const peerValues = studentPeers.map(function (peer) {
+                const rawValue = peer[metric.key];
+                return rawValue === null || rawValue === undefined || rawValue === "" ? NaN : Number(rawValue);
+            }).filter(Number.isFinite);
+            const averageValue = peerValues.length
+                ? peerValues.reduce(function (sum, value) { return sum + value; }, 0) / peerValues.length
+                : null;
+            const studentPercent = Number.isFinite(studentValue)
+                ? Math.max(0, Math.min(100, studentValue * metric.scale))
+                : null;
+            const averagePercent = Number.isFinite(averageValue)
+                ? Math.max(0, Math.min(100, averageValue * metric.scale))
+                : null;
+            return {
+                label: metric.label,
+                unit: metric.unit,
+                studentValue: Number.isFinite(studentValue) ? studentValue : null,
+                averageValue: averageValue,
+                studentPercent: studentPercent,
+                averagePercent: averagePercent,
+                difference: Number.isFinite(studentValue) && Number.isFinite(averageValue)
+                    ? (studentValue - averageValue) * metric.scale
+                    : null
+            };
         });
         const comparisons = [
             { label: "Success score", key: "success_score", suffix: " pts" },
@@ -358,15 +399,77 @@ document.addEventListener("DOMContentLoaded", function () {
             { label: "Attendance", key: "attendance", suffix: "%" },
             { label: "Placement readiness", key: "placement_score", suffix: " pts" }
         ].map(function (metric) {
-            const average = studentPeers.length ? studentPeers.reduce(function (sum, peer) {
-                return sum + (Number(peer[metric.key]) || 0);
-            }, 0) / studentPeers.length : 0;
-            const difference = (Number(student[metric.key]) || 0) - average;
+            const peerValues = studentPeers.map(function (peer) {
+                const value = peer[metric.key];
+                return value === null || value === undefined || value === "" ? NaN : Number(value);
+            }).filter(Number.isFinite);
+            const average = peerValues.length
+                ? peerValues.reduce(function (sum, value) { return sum + value; }, 0) / peerValues.length
+                : null;
+            const currentValue = Number(student[metric.key]);
+            const difference = Number.isFinite(currentValue) && Number.isFinite(average)
+                ? currentValue - average
+                : null;
             return '<div class="comparison-row"><span>' + escapeHtml(metric.label) +
-                '</span><strong>' + (difference >= 0 ? "+" : "") + difference.toFixed(1) +
-                escapeHtml(metric.suffix) + '</strong><small>vs department avg. ' +
-                average.toFixed(1) + escapeHtml(metric.suffix) + '</small></div>';
+                '</span><strong>' + (difference === null ? "—" :
+                    (difference >= 0 ? "+" : "") + difference.toFixed(1) + escapeHtml(metric.suffix)) +
+                '</strong><small>vs department peers avg. ' +
+                (average === null ? "unavailable" : average.toFixed(1) + escapeHtml(metric.suffix)) +
+                '</small></div>';
         }).join("");
+        const indicatorGraph = indicatorData.map(function (metric) {
+            const studentDisplay = metric.studentValue === null
+                ? "Unavailable" : metric.studentValue.toFixed(1) + metric.unit;
+            const averageDisplay = metric.averageValue === null
+                ? "Unavailable" : metric.averageValue.toFixed(1) + metric.unit;
+            const gapDisplay = metric.difference === null
+                ? "No peer comparison"
+                : (metric.difference >= 0 ? "+" : "") + metric.difference.toFixed(1) +
+                    (metric.unit === "/10" ? " normalized pts" : " pts") + " vs peers";
+            const studentBar = metric.studentPercent === null ? "" :
+                '<i class="student-graph-student" style="width:' + metric.studentPercent.toFixed(1) + '%"></i>';
+            const averageBar = metric.averagePercent === null ? "" :
+                '<i class="student-graph-average" style="width:' + metric.averagePercent.toFixed(1) + '%"></i>';
+            return '<div class="student-graph-row" role="group" aria-label="' +
+                escapeHtml(metric.label + ": student " + studentDisplay +
+                    ", department peers average " + averageDisplay + ", " + gapDisplay) + '">' +
+                '<div class="student-graph-label"><span>' + escapeHtml(metric.label) +
+                '</span><strong>' + escapeHtml(studentDisplay) +
+                '</strong></div><div class="student-graph-bars"><div class="student-graph-bar-line">' +
+                '<span>Student</span><div class="student-graph-track" aria-hidden="true">' +
+                studentBar + '</div></div><div class="student-graph-bar-line">' +
+                '<span>Department</span><div class="student-graph-track" aria-hidden="true">' +
+                averageBar + '</div><strong>' + escapeHtml(averageDisplay) +
+                '</strong></div><small class="student-graph-gap">' + escapeHtml(gapDisplay) +
+                '</small></div></div>';
+        }).join("");
+        const comparedIndicators = indicatorData.filter(function (metric) {
+            return metric.difference !== null && metric.label !== "Student success score";
+        });
+        const abovePeerCount = comparedIndicators.filter(function (metric) {
+            return metric.difference > 0;
+        }).length;
+        const strongestIndicator = comparedIndicators.reduce(function (strongest, metric) {
+            return !strongest || metric.difference > strongest.difference ? metric : strongest;
+        }, null);
+        const focusIndicator = comparedIndicators.reduce(function (focus, metric) {
+            return !focus || metric.difference < focus.difference ? metric : focus;
+        }, null);
+        const studentAnalysis = comparedIndicators.length
+            ? '<div class="student-analysis-summary"><div><span>Indicators above peers</span><strong>' +
+                abovePeerCount + ' / ' + comparedIndicators.length + '</strong></div><div><span>Strongest relative indicator</span><strong>' +
+                (strongestIndicator ? escapeHtml(strongestIndicator.label) : "Unavailable") +
+                (strongestIndicator ? ' <small>' +
+                    (strongestIndicator.difference >= 0 ? "+" : "") +
+                    strongestIndicator.difference.toFixed(1) + ' pts</small>' : '') +
+                '</strong></div><div><span>Largest support opportunity</span><strong>' +
+                (focusIndicator && focusIndicator.difference < 0 ? escapeHtml(focusIndicator.label) :
+                    "No below-average indicators") +
+                (focusIndicator && focusIndicator.difference < 0
+                    ? ' <small>' + focusIndicator.difference.toFixed(1) + ' pts</small>'
+                    : '') +
+                '</strong></div></div>'
+            : '<p class="student-graph-note">No other student records are available for a department comparison.</p>';
         const detailedMetrics = [
             ["LMS activity", student.lms_score, "/100"],
             ["Engagement", student.engagement, "/100"],
@@ -427,8 +530,13 @@ document.addEventListener("DOMContentLoaded", function () {
             '<span class="panel-kicker">INDICATOR PROFILE</span><div class="profile-metric-grid">' +
             detailedMetrics + '</div></section><section class="student-insight-section">' +
             '<span class="panel-kicker">DEPARTMENT CONTEXT</span><p class="insight-intro">' +
-            escapeHtml(studentPeers.length) + ' student records in this department. Positive values are above the current cohort average; this is not a historical trend.</p>' +
+            escapeHtml(studentPeers.length) + ' other student records in this department. Comparisons use department peers and exclude the selected student.</p>' +
             '<div class="comparison-list">' + comparisons + '</div></section>' +
+            '<section class="student-insight-section student-graph-section"><div class="student-graph-heading">' +
+            '<div><span class="panel-kicker">FULL INDIVIDUAL STUDENT ANALYSIS</span><h4>Performance across all indicators</h4></div>' +
+            '<span class="student-graph-scale">9 measures · 0–100 graph scale</span></div>' +
+            studentAnalysis + '<div class="student-indicator-graph">' + indicatorGraph + '</div>' +
+            '<p class="student-graph-note">Bars compare the selected student with other current records in the same department. CGPA is normalized from 0–10 for the graph; its displayed value stays on the original scale. This is not a semester trend or prediction.</p></section>' +
             '<section class="student-insight-section intervention-followup"><span class="panel-kicker">FACULTY FOLLOW-UP · BROWSER-ONLY</span>' +
             '<label for="followupStatus">Case status</label><select id="followupStatus" data-followup-student="' +
             escapeHtml(student.student_id) + '"><option value="Not started"' +
@@ -542,21 +650,39 @@ document.addEventListener("DOMContentLoaded", function () {
         const tableBody = document.getElementById("riskStudents");
         if (!tableBody) return;
         const flagged = getInterventionCandidates();
+        setText("riskRecordCount", flagged.length);
         tableBody.innerHTML = flagged.length ? flagged.map(function (student) {
-            const drivers = Array.isArray(student.risk_drivers) && student.risk_drivers.length
-                ? student.risk_drivers.map(function (driver) {
-                    return driver.message;
-                }).join(" ")
-                : "No individual factor threshold triggered.";
-            return '<tr><td><strong>' + escapeHtml(student.student_id) + '</strong><small class="table-subtext">' +
-                escapeHtml(student.department || "") + '</small></td><td>' + escapeHtml(student.success_score) +
-                '</td><td>' + escapeHtml(student.attendance) + '%</td><td>' +
+            const riskDrivers = Array.isArray(student.risk_drivers) ? student.risk_drivers : [];
+            const drivers = riskDrivers.length
+                ? '<details class="risk-driver-details"><summary>View ' + riskDrivers.length +
+                    (riskDrivers.length === 1 ? ' risk factor' : ' risk factors') +
+                    '</summary><ul>' + riskDrivers.map(function (driver) {
+                        return '<li>' + escapeHtml(driver.message) + '</li>';
+                    }).join("") + '</ul></details>'
+                : '<span class="risk-driver-clear">No individual factor threshold triggered</span>';
+            const recommendedAction = student.recommended_action || "";
+            const successScore = Number(student.success_score);
+            const scoreWidth = Number.isFinite(successScore)
+                ? Math.max(0, Math.min(100, successScore))
+                : 0;
+            const risk = String(student.risk || "UNKNOWN");
+            return '<tr class="risk-row risk-row-' + riskClass(risk) + '"><td><div class="risk-student-cell">' +
+                '<span class="risk-student-mark">' + escapeHtml(String(student.student_id || "?").slice(-2)) +
+                '</span><div><strong>' + escapeHtml(student.student_id) + '</strong><small class="table-subtext">' +
+                escapeHtml(student.department || "Department unavailable") + '</small></div></div></td>' +
+                '<td><div class="risk-score-cell"><strong>' +
+                (Number.isFinite(successScore) ? escapeHtml(successScore.toFixed(1)) : "—") +
+                '</strong><span class="risk-score-track"><i style="width:' + scoreWidth.toFixed(1) +
+                '%"></i></span></div></td><td><span class="risk-attendance-value">' +
+                escapeHtml(student.attendance) + '%</span></td><td>' +
                 '<span class="student-risk risk-' + riskClass(student.placement_risk) + '">' +
                 escapeHtml(student.placement_risk || "UNKNOWN") + '</span></td><td>' +
-                escapeHtml(drivers) + '</td><td><span class="student-risk risk-' +
-                riskClass(student.risk) + '">' + escapeHtml(student.risk) + '</span></td><td><strong>' +
-                escapeHtml(student.segment_label || "Unclassified") + '</strong><small class="table-subtext">' +
-                escapeHtml(student.recommended_action || "") + '</small></td></tr>';
+                drivers + '</td><td><span class="student-risk risk-' +
+                riskClass(risk) + '">' + escapeHtml(risk) + '</span></td><td><span class="risk-segment-label">' +
+                escapeHtml(student.segment_label || "Unclassified") + '</span><small class="table-subtext">' +
+                '<span class="risk-next-step" title="' + escapeHtml(recommendedAction) + '">' +
+                escapeHtml(recommendedAction || "Faculty review recommended.") +
+                '</span></small></td></tr>';
         }).join("") : '<tr class="empty-row"><td colspan="7"><div class="table-empty">' +
             '<strong>No students flagged</strong><span>All available records are currently in good standing.</span>' +
             '</div></td></tr>';
@@ -653,9 +779,32 @@ document.addEventListener("DOMContentLoaded", function () {
         setText("riskHighCount", high);
         setText("riskMediumCount", medium);
         setText("riskLowCount", low);
+        setText("riskTotalStudents", total);
         setText("placementRiskCount", summary.placement_risk_students == null
             ? "--"
             : summary.placement_risk_students);
+        const riskDistribution = document.getElementById("riskDistribution");
+        if (riskDistribution) {
+            const distributionTotal = high + medium + low;
+            [
+                ["riskHighBar", high],
+                ["riskMediumBar", medium],
+                ["riskLowBar", low]
+            ].forEach(function (entry) {
+                const bar = document.getElementById(entry[0]);
+                if (bar) {
+                    const percent = distributionTotal
+                        ? Math.max(0, Math.min(100, entry[1] / distributionTotal * 100))
+                        : 0;
+                    bar.style.width = percent.toFixed(1) + "%";
+                }
+            });
+            riskDistribution.setAttribute(
+                "aria-label",
+                "Current risk distribution: " + high + " high, " + medium +
+                    " medium, " + low + " low across " + distributionTotal + " records."
+            );
+        }
         const coreScore = document.querySelector(".core-score span");
         if (coreScore) coreScore.textContent = Number(summary.average_success_score).toFixed(0);
         const coreLabel = document.querySelector(".core-label");
