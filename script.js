@@ -516,7 +516,12 @@ document.addEventListener("DOMContentLoaded", function () {
             '<div><span>ATTENDANCE</span><strong>' + escapeHtml(student.attendance) + '%</strong></div>' +
             '<div><span>LMS SCORE</span><strong>' + escapeHtml(student.lms_score) + '</strong></div>' +
             '<div><span>SUCCESS SCORE</span><strong>' + escapeHtml(student.success_score) + '</strong></div>' +
-            '</div><section class="student-insight-section"><span class="panel-kicker">SUCCESS SCORE EXPLANATION</span>' +
+            '</div><section class="student-insight-section student-graph-section"><div class="student-graph-heading">' +
+            '<div><span class="panel-kicker">FULL INDIVIDUAL STUDENT ANALYSIS</span><h4>Performance across all indicators</h4></div>' +
+            '<span class="student-graph-scale">9 measures · 0–100 graph scale</span></div>' +
+            studentAnalysis + '<div class="student-indicator-graph">' + indicatorGraph + '</div>' +
+            '<p class="student-graph-note">Bars compare the selected student with other current records in the same department. CGPA is normalized from 0–10 for the graph; its displayed value stays on the original scale. This is not a semester trend or prediction.</p></section>' +
+            '<section class="student-insight-section"><span class="panel-kicker">SUCCESS SCORE EXPLANATION</span>' +
             '<p class="insight-intro">Weighted 0–100 score. Each contribution equals the normalized indicator multiplied by its published weight.</p>' +
             '<div class="score-breakdown">' + (breakdownMarkup || '<p class="insight-clear">Score contributions are unavailable.</p>') +
             '</div></section><section class="student-insight-section"><span class="panel-kicker">RISK DRIVERS</span>' +
@@ -532,11 +537,6 @@ document.addEventListener("DOMContentLoaded", function () {
             '<span class="panel-kicker">DEPARTMENT CONTEXT</span><p class="insight-intro">' +
             escapeHtml(studentPeers.length) + ' other student records in this department. Comparisons use department peers and exclude the selected student.</p>' +
             '<div class="comparison-list">' + comparisons + '</div></section>' +
-            '<section class="student-insight-section student-graph-section"><div class="student-graph-heading">' +
-            '<div><span class="panel-kicker">FULL INDIVIDUAL STUDENT ANALYSIS</span><h4>Performance across all indicators</h4></div>' +
-            '<span class="student-graph-scale">9 measures · 0–100 graph scale</span></div>' +
-            studentAnalysis + '<div class="student-indicator-graph">' + indicatorGraph + '</div>' +
-            '<p class="student-graph-note">Bars compare the selected student with other current records in the same department. CGPA is normalized from 0–10 for the graph; its displayed value stays on the original scale. This is not a semester trend or prediction.</p></section>' +
             '<section class="student-insight-section intervention-followup"><span class="panel-kicker">FACULTY FOLLOW-UP · BROWSER-ONLY</span>' +
             '<label for="followupStatus">Case status</label><select id="followupStatus" data-followup-student="' +
             escapeHtml(student.student_id) + '"><option value="Not started"' +
