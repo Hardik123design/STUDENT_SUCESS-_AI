@@ -5639,6 +5639,7 @@ body.reduce-motion *::after {
 }
 
 .student-inspector {
+    container: studentprofile / inline-size;
     display: grid;
     align-content: start;
     gap: 16px;
@@ -5678,7 +5679,8 @@ body.reduce-motion *::after {
 
 .student-profile-hero {
     position: relative;
-    display: flex;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
     align-items: center;
     justify-content: space-between;
     gap: 16px;
@@ -5711,6 +5713,7 @@ body.reduce-motion *::after {
     align-items: center;
     gap: 15px;
     min-width: 0;
+    min-height: 94px;
 }
 
 .student-profile-identity .profile-avatar {
@@ -5732,14 +5735,17 @@ body.reduce-motion *::after {
 .student-profile-copy .panel-kicker {
     color: #f1a4af;
     font-size: 9px;
-    letter-spacing: .16em;
+    letter-spacing: .1em;
+    white-space: nowrap;
 }
 
 .student-profile-copy h2 {
     margin-top: 5px;
     color: #fff;
-    font-size: clamp(23px, 3vw, 30px);
+    font-size: clamp(21px, 3vw, 29px);
     letter-spacing: -.045em;
+    line-height: 1.05;
+    white-space: nowrap;
 }
 
 .student-profile-copy p {
@@ -5764,6 +5770,8 @@ body.reduce-motion *::after {
     z-index: 1;
     display: grid;
     flex: 0 0 94px;
+    grid-column: 2;
+    grid-row: 1;
     width: 94px;
     height: 94px;
     place-items: center;
@@ -5891,6 +5899,132 @@ body.reduce-motion *::after {
 .student-inspector .student-indicator-graph {
     border-color: #ececef;
     background: #fff;
+}
+
+@container studentprofile (max-width: 620px) {
+    .student-inspector {
+        gap: 16px;
+        padding: 16px;
+    }
+
+    .student-profile-hero {
+        grid-template-columns: minmax(0, 1fr) 76px;
+        min-height: 144px;
+        gap: 8px;
+        padding: 16px;
+    }
+
+    .student-profile-identity {
+        gap: 10px;
+        min-height: 100px;
+    }
+
+    .student-profile-identity .profile-avatar {
+        flex-basis: 50px;
+        width: 50px;
+        height: 50px;
+        border-radius: 15px;
+        font-size: 15px;
+    }
+
+    .student-profile-copy .panel-kicker {
+        font-size: 8px;
+        letter-spacing: .06em;
+    }
+
+    .student-profile-copy h2 {
+        font-size: clamp(19px, 6cqi, 25px);
+    }
+
+    .student-profile-copy p {
+        font-size: 11px;
+        line-height: 1.35;
+    }
+
+    .student-profile-segment {
+        max-width: 100%;
+        margin-top: 8px;
+        padding: 5px 7px;
+        font-size: 9px;
+    }
+
+    .student-profile-score {
+        grid-column: 2;
+        grid-row: 1;
+        flex-basis: 68px;
+        width: 68px;
+        height: 68px;
+    }
+
+    .student-profile-score > div {
+        width: 58px;
+        height: 58px;
+    }
+
+    .student-profile-score strong {
+        font-size: 17px;
+    }
+
+    .student-profile-score span {
+        font-size: 6px;
+    }
+
+    .student-inspector .student-profile-metrics {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 9px;
+    }
+
+    .student-inspector .student-profile-metrics > div {
+        min-height: 76px;
+        padding: 12px;
+    }
+
+    .student-inspector .student-profile-metrics span {
+        font-size: 9px;
+        letter-spacing: .04em;
+        line-height: 1.3;
+    }
+
+    .student-inspector > .student-insight-section {
+        gap: 14px;
+        padding: 16px;
+    }
+
+    .student-inspector .student-graph-heading {
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 9px;
+    }
+
+    .student-inspector .student-graph-heading h4 {
+        font-size: 16px;
+        line-height: 1.3;
+        overflow-wrap: normal;
+        word-break: normal;
+    }
+
+    .student-inspector .student-graph-scale {
+        white-space: normal;
+    }
+
+    .student-inspector .student-analysis-summary {
+        grid-template-columns: repeat(auto-fit, minmax(132px, 1fr));
+    }
+
+    .student-inspector .student-analysis-summary > div {
+        padding: 12px;
+    }
+
+    .student-inspector .student-graph-row {
+        grid-template-columns: minmax(0, 1fr);
+        gap: 8px;
+        padding-bottom: 13px;
+    }
+
+    .student-inspector .student-graph-label span,
+    .student-inspector .student-graph-label strong {
+        font-size: 11px;
+    }
 }
 
 @media (max-width: 620px) {
