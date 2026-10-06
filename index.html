@@ -68,12 +68,12 @@
             </div>
 
             <div class="sidebar-bottom">
-                <div class="connection-card">
+                <div class="connection-card" id="connectionCard" data-state="checking">
                     <div class="connection-top">
                         <span class="status-dot"></span>
                         <span>System Status</span>
                     </div>
-                    <p>Local build running.</p>
+                    <p id="connectionMessage">Connecting to backend…</p>
                 </div>
                 <div class="sidebar-version">v1.0.0</div>
             </div>
@@ -131,7 +131,7 @@
                                 <span class="eyebrow-dot"></span> ACADEMIC TRACKING
                             </div>
                             <h2>Monitor student performance & <span>intervene early.</span></h2>
-                            <p>Track attendance, semester grades, assignment submission records, and early alerts in one
+                            <p>Review student success scores, attendance, LMS performance, and backend risk classifications in one
                                 unified dashboard.</p>
 
                             <div class="hero-actions">
@@ -192,9 +192,9 @@
                         <article class="metric-card">
                             <div class="metric-icon">✦</div>
                             <div class="metric-content">
-                                <span>AVERAGE GPA / SCORE</span>
-                                <strong>--</strong>
-                                <small>No records found</small>
+                                <span>AVERAGE SUCCESS SCORE</span>
+                                <strong id="averageScore">--</strong>
+                                <small id="totalStudents">Waiting for backend</small>
                             </div>
                             <div class="metric-line"></div>
                         </article>
@@ -203,8 +203,8 @@
                             <div class="metric-icon warning-icon">△</div>
                             <div class="metric-content">
                                 <span>CRITICAL ALERTS</span>
-                                <strong>--</strong>
-                                <small>No alerts triggered</small>
+                                <strong id="criticalAlerts">--</strong>
+                                <small>High-risk students</small>
                             </div>
                             <div class="metric-line"></div>
                         </article>
@@ -213,8 +213,8 @@
                             <div class="metric-icon">◌</div>
                             <div class="metric-content">
                                 <span>AVG. ATTENDANCE</span>
-                                <strong>--</strong>
-                                <small>Awaiting register data</small>
+                                <strong id="averageAttendance">--</strong>
+                                <small>Average attendance</small>
                             </div>
                             <div class="metric-line"></div>
                         </article>
@@ -222,9 +222,9 @@
                         <article class="metric-card">
                             <div class="metric-icon">◒</div>
                             <div class="metric-content">
-                                <span>SUBMISSION RATE</span>
-                                <strong>--</strong>
-                                <small>LMS disconnected</small>
+                                <span>AVG. LMS SCORE</span>
+                                <strong id="averageLmsScore">--</strong>
+                                <small>Average LMS score</small>
                             </div>
                             <div class="metric-line"></div>
                         </article>
@@ -236,7 +236,7 @@
                             <div class="panel-head">
                                 <div>
                                     <span class="panel-kicker">SEMESTER PROGRESSION</span>
-                                    <h3>Performance History</h3>
+                                    <h3>Semester Performance History</h3>
                                 </div>
                                 <button class="ghost-button" data-go-page="analytics" type="button">
                                     Full Report →
@@ -267,8 +267,8 @@
                                     </svg>
                                     <div class="chart-empty">
                                         <div class="empty-icon">◒</div>
-                                        <strong>No plot data</strong>
-                                        <span>Connect dataset to populate curve.</span>
+                                        <strong>History endpoint unavailable</strong>
+                                        <span>The backend currently provides student records and department summaries only.</span>
                                     </div>
                                 </div>
                             </div>
@@ -297,25 +297,25 @@
                                     <div class="risk-symbol">!</div>
                                     <div>
                                         <strong>Critical Risk</strong>
-                                        <span>0 students flagged</span>
+                                        <span id="highRiskCaption">Loading records…</span>
                                     </div>
-                                    <b>0</b>
+                                    <b id="highRiskCount">--</b>
                                 </div>
                                 <div class="risk-item risk-medium">
                                     <div class="risk-symbol">!</div>
                                     <div>
                                         <strong>Moderate Risk</strong>
-                                        <span>0 students flagged</span>
+                                        <span id="mediumRiskCaption">Loading records…</span>
                                     </div>
-                                    <b>0</b>
+                                    <b id="mediumRiskCount">--</b>
                                 </div>
                                 <div class="risk-item risk-low">
                                     <div class="risk-symbol">✓</div>
                                     <div>
                                         <strong>Good Standing</strong>
-                                        <span>0 students recorded</span>
+                                        <span id="lowRiskCaption">Loading records…</span>
                                     </div>
-                                    <b>0</b>
+                                    <b id="lowRiskCount">--</b>
                                 </div>
                             </div>
 
@@ -344,12 +344,12 @@
                                         <th>STUDENT</th>
                                         <th>SCORE</th>
                                         <th>ATTENDANCE</th>
-                                        <th>SUBMISSION</th>
+                                        <th>LMS SCORE</th>
                                         <th>STATUS</th>
                                         <th>ACTION</th>
                                     </tr>
                                 </thead>
-                                <tbody>
+                                <tbody id="priorityStudents">
                                     <tr class="empty-row">
                                         <td colspan="6">
                                             <div class="table-empty">
@@ -373,7 +373,7 @@
                             <h2>Student Records</h2>
                             <p>Filter, search, and view individual academic files.</p>
                         </div>
-                        <div class="intro-badge">DISCONNECTED</div>
+                        <div class="intro-badge" id="studentsConnectionBadge">CONNECTING</div>
                     </div>
 
                     <div class="student-workspace">
@@ -382,7 +382,7 @@
                                 <div class="input-wrap">
                                     <span>⌕</span>
                                     <input id="studentSearch" type="text"
-                                        placeholder="Search by name, roll no, course..." autocomplete="off">
+                                        placeholder="Search by student ID, department, or risk..." autocomplete="off">
                                 </div>
                             </div>
 
@@ -393,12 +393,13 @@
                                 <button class="filter-button" data-filter="stable" type="button">Normal</button>
                             </div>
 
-                            <div class="student-empty">
+                            <div class="student-empty" id="studentEmpty">
                                 <div class="big-empty-icon">◉</div>
                                 <h3>No student data</h3>
                                 <p>Load database records to populate student directory.</p>
-                                <span class="api-contract">Endpoint: /api/students</span>
+                                <span class="api-contract">Endpoint: /students</span>
                             </div>
+                            <div class="student-record-list" id="studentDirectory" aria-live="polite"></div>
                         </div>
 
                         <div class="student-inspector panel">
@@ -429,9 +430,9 @@
                         <div>
                             <span class="section-eyebrow">REPORTS</span>
                             <h2>Batch Analytics</h2>
-                            <p>Overview of departmental performance and attendance distribution.</p>
+                            <p>Department success-score averages and student counts from the backend.</p>
                         </div>
-                        <div class="intro-badge">PENDING</div>
+                        <div class="intro-badge" id="analyticsConnectionBadge">CONNECTING</div>
                     </div>
 
                     <div class="analytics-grid">
@@ -439,7 +440,7 @@
                             <div class="panel-head">
                                 <div>
                                     <span class="panel-kicker">CHART</span>
-                                    <h3>Score Trends</h3>
+                                    <h3>Department Success Scores</h3>
                                 </div>
                                 <button class="ghost-button" data-toast="Filter dialog not set up yet." type="button">
                                     Date Range
@@ -450,7 +451,7 @@
                                 <div class="chart-grid-lines vertical">
                                     <span></span><span></span><span></span><span></span><span></span><span></span>
                                 </div>
-                                <div class="analytics-center">
+                                <div class="analytics-center" id="departmentAnalytics">
                                     <div class="empty-icon">◒</div>
                                     <strong>No chart data</strong>
                                     <span>Import grades to compute class average curves.</span>
@@ -534,13 +535,13 @@
                     <div class="risk-dashboard">
                         <article class="panel risk-overview-card">
                             <span class="panel-kicker">SUMMARY</span>
-                            <div class="risk-big">0</div>
-                            <p>Students flagged for attendance or assignment shortage</p>
+                            <div class="risk-big" id="flaggedStudents">--</div>
+                            <p>Students classified as high or medium risk by the backend</p>
 
                             <div class="risk-mini-grid">
-                                <div><span>HIGH</span><strong>0</strong></div>
-                                <div><span>MEDIUM</span><strong>0</strong></div>
-                                <div><span>LOW</span><strong>0</strong></div>
+                                <div><span>HIGH</span><strong id="riskHighCount">--</strong></div>
+                                <div><span>MEDIUM</span><strong id="riskMediumCount">--</strong></div>
+                                <div><span>LOW</span><strong id="riskLowCount">--</strong></div>
                             </div>
                         </article>
 
@@ -617,6 +618,36 @@
                             </button>
                         </article>
                     </div>
+
+                    <article class="panel focus-panel risk-record-panel">
+                        <div class="panel-head">
+                            <div>
+                                <span class="panel-kicker">LIVE RECORDS</span>
+                                <h3>Students Requiring Attention</h3>
+                            </div>
+                            <button class="ghost-button" data-go-page="students" type="button">
+                                Open directory →
+                            </button>
+                        </div>
+                        <div class="table-wrap">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>STUDENT</th>
+                                        <th>SUCCESS SCORE</th>
+                                        <th>ATTENDANCE</th>
+                                        <th>RISK FACTORS</th>
+                                        <th>RISK</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="riskStudents">
+                                    <tr class="empty-row">
+                                        <td colspan="5">Loading risk records…</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </article>
                 </section>
 
                 <!-- 5. AI / PREDICTIONS PAGE -->
@@ -627,14 +658,14 @@
                                 <span class="eyebrow-dot"></span> ML CLASSIFICATION
                             </div>
                             <h2>Predictive <span>Analysis</span></h2>
-                            <p>Automated score forecasting and remedial suggestion generator.</p>
+                            <p>Look up a student record and review the backend risk classification.</p>
                         </div>
 
                         <div class="ai-status-card">
                             <span class="status-dot"></span>
                             <div>
-                                <strong>MODEL STANDBY</strong>
-                                <small>Awaiting input parameters</small>
+                                <strong>STUDENT LOOKUP</strong>
+                                <small>Prediction endpoint not available</small>
                             </div>
                         </div>
                     </div>
@@ -644,8 +675,8 @@
                             <div class="ai-panel-head">
                                 <div class="ai-orb">✦</div>
                                 <div>
-                                    <span class="panel-kicker">OUTPUT CONSOLE</span>
-                                    <h3>Model Predictions</h3>
+                                    <span class="panel-kicker">STUDENT RECORD</span>
+                                            <h3>Backend Student Lookup</h3>
                                 </div>
                             </div>
 
@@ -655,19 +686,19 @@
                                     <span></span><span></span><span></span><span></span>
                                 </div>
                                 <h3>No query submitted</h3>
-                                <p>Select a student profile or enter parameters below to generate performance
-                                    estimations.</p>
+                                <p>Enter a student ID to load its backend record. Predictive model results are not
+                                provided by the current API.</p>
 
                                 <div class="ai-tags">
-                                    <span>Decision Tree</span>
-                                    <span>Logistic Regression</span>
-                                    <span>Attendance Impact</span>
-                                    <span>Performance Forecast</span>
+                                    <span>Student Records</span>
+                                    <span>Risk Classification</span>
+                                    <span>Attendance</span>
+                                    <span>Success Score</span>
                                 </div>
                             </div>
 
                             <div class="ai-input-area">
-                                <input id="aiPrompt" type="text" placeholder="Enter student roll number or query..."
+                                <input id="aiPrompt" type="text" placeholder="Enter a student ID, e.g. STU001..."
                                     autocomplete="off">
                                 <button id="aiSend" type="button">→</button>
                             </div>
