@@ -4234,7 +4234,10 @@ select {
     padding: 0 0 14px;
 }
 
-.factor-list,
+.factor-list {
+    padding: 0;
+}
+
 .workflow {
     display: grid;
     grid-template-columns: minmax(0, 1fr) 24px minmax(0, 1fr) 24px minmax(0, 1fr);
