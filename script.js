@@ -166,6 +166,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
     function switchTab(viewId) {
         if (!routes[viewId]) return;
+        const studentWorkspace = document.querySelector(".student-workspace");
+        if (studentWorkspace) studentWorkspace.classList.remove("is-inspecting-student");
         viewSections.forEach(function (section) {
             section.classList.toggle("is-active", section.dataset.view === viewId);
         });
@@ -286,12 +288,12 @@ document.addEventListener("DOMContentLoaded", function () {
                 const selected = students.find(function (student) {
                     return String(student.student_id) === button.dataset.studentId;
                 });
-                if (selected) renderStudentDetails(selected);
+                if (selected) renderStudentDetails(selected, true);
             });
         });
     }
 
-    function renderStudentDetails(student) {
+    function renderStudentDetails(student, focusAnalysis) {
         const inspector = document.querySelector(".student-inspector");
         if (!inspector) return;
         const scoreBreakdown = Array.isArray(student.score_breakdown) ? student.score_breakdown : [];
@@ -506,21 +508,24 @@ document.addEventListener("DOMContentLoaded", function () {
             }).join("") + '</ul>'
             : '<p class="insight-clear">No individual risk-driver threshold is currently triggered.</p>';
         inspector.innerHTML =
+            '<button class="student-detail-back" type="button" data-back-students>← Student list</button>' +
             '<div class="inspector-top"><span class="panel-kicker">STUDENT DETAILS</span>' +
             '<span class="live-chip">' + escapeHtml(student.risk || "UNKNOWN") + '</span></div>' +
-            '<div class="profile-placeholder"><div class="profile-avatar">' +
-            escapeHtml(String(student.student_id || "?").slice(-2)) + '</div><h3>' +
-            escapeHtml(student.student_id) + '</h3><p>' + escapeHtml(student.department || "Department unavailable") +
-            '</p></div><div class="placeholder-stats">' +
+            '<section class="student-insight-section student-graph-section"><div class="student-graph-heading">' +
+            '<div><span class="panel-kicker">INDIVIDUAL STUDENT ANALYSIS</span><h4>' +
+            escapeHtml(student.student_id) + ' · performance across indicators</h4></div>' +
+            '<span class="student-graph-scale">9 measures · 0–100 graph scale</span></div>' +
+            studentAnalysis + '<div class="student-indicator-graph">' + indicatorGraph + '</div>' +
+            '<p class="student-graph-note">Bars compare the selected student with other current records in the same department. CGPA is normalized from 0–10 for the graph; its displayed value stays on the original scale. This is not a semester trend or prediction.</p></section>' +
+            '<div class="placeholder-stats">' +
             '<div><span>CGPA</span><strong>' + escapeHtml(student.cgpa) + '</strong></div>' +
             '<div><span>ATTENDANCE</span><strong>' + escapeHtml(student.attendance) + '%</strong></div>' +
             '<div><span>LMS SCORE</span><strong>' + escapeHtml(student.lms_score) + '</strong></div>' +
             '<div><span>SUCCESS SCORE</span><strong>' + escapeHtml(student.success_score) + '</strong></div>' +
-            '</div><section class="student-insight-section student-graph-section"><div class="student-graph-heading">' +
-            '<div><span class="panel-kicker">FULL INDIVIDUAL STUDENT ANALYSIS</span><h4>Performance across all indicators</h4></div>' +
-            '<span class="student-graph-scale">9 measures · 0–100 graph scale</span></div>' +
-            studentAnalysis + '<div class="student-indicator-graph">' + indicatorGraph + '</div>' +
-            '<p class="student-graph-note">Bars compare the selected student with other current records in the same department. CGPA is normalized from 0–10 for the graph; its displayed value stays on the original scale. This is not a semester trend or prediction.</p></section>' +
+            '</div><div class="profile-placeholder"><div class="profile-avatar">' +
+            escapeHtml(String(student.student_id || "?").slice(-2)) + '</div><h3>' +
+            escapeHtml(student.student_id) + '</h3><p>' + escapeHtml(student.department || "Department unavailable") +
+            '</p></div>' +
             '<section class="student-insight-section"><span class="panel-kicker">SUCCESS SCORE EXPLANATION</span>' +
             '<p class="insight-intro">Weighted 0–100 score. Each contribution equals the normalized indicator multiplied by its published weight.</p>' +
             '<div class="score-breakdown">' + (breakdownMarkup || '<p class="insight-clear">Score contributions are unavailable.</p>') +
@@ -562,6 +567,19 @@ document.addEventListener("DOMContentLoaded", function () {
             riskClass(riskBandForScore(initialProjectedScore)) + '" id="scenarioBand">' +
             riskBandForScore(initialProjectedScore) + ' band</span></div>' +
             '<p class="scenario-disclaimer">Assumes chosen gains are achieved. Illustrative arithmetic only—not a prediction, causal estimate, or saved change. Faculty must validate feasible targets.</p></section>';
+
+        const studentWorkspace = document.querySelector(".student-workspace");
+        if (focusAnalysis && studentWorkspace &&
+            window.matchMedia("(max-width: 1200px)").matches) {
+            studentWorkspace.classList.add("is-inspecting-student");
+        }
+
+        const backToStudentList = inspector.querySelector("[data-back-students]");
+        if (backToStudentList && studentWorkspace) {
+            backToStudentList.addEventListener("click", function () {
+                studentWorkspace.classList.remove("is-inspecting-student");
+            });
+        }
 
         const scenarioSection = inspector.querySelector(".scenario-section");
         if (scenarioSection) {
@@ -640,7 +658,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 });
                 if (selected) {
                     switchTab("students");
-                    renderStudentDetails(selected);
+                    renderStudentDetails(selected, true);
                 }
             });
         });
@@ -1572,7 +1590,7 @@ document.addEventListener("DOMContentLoaded", function () {
             closeSearchDialog();
             if (student) {
                 switchTab("students");
-                renderStudentDetails(student);
+                renderStudentDetails(student, true);
             } else {
                 showNotification("No matching student or department found for '" + query + "'.");
             }

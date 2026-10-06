@@ -4533,8 +4533,57 @@ select {
     line-height: 1.6;
 }
 
+.student-detail-back {
+    display: none;
+}
+
 .csv-import-actions .primary-button:disabled {
     color: #fff;
+}
+
+@media (max-width: 1200px) {
+    .student-workspace.is-inspecting-student .student-list-panel {
+        display: none;
+    }
+
+    .student-workspace.is-inspecting-student .student-inspector {
+        position: fixed;
+        inset: 0;
+        z-index: 120;
+        width: 100%;
+        height: 100vh;
+        height: 100dvh;
+        min-height: 0;
+        max-height: none;
+        margin: 0;
+        overflow-y: auto;
+        border-radius: 0;
+        overscroll-behavior: contain;
+    }
+
+    .student-detail-back {
+        display: inline-flex;
+        align-items: center;
+        align-self: flex-start;
+        gap: 6px;
+        min-height: 38px;
+        margin: 0 0 15px;
+        padding: 0 12px;
+        border: 1px solid var(--border);
+        border-radius: 9px;
+        color: var(--text);
+        background: #fff;
+        cursor: pointer;
+        font: inherit;
+        font-size: 11px;
+        font-weight: 800;
+    }
+
+    .student-detail-back:hover {
+        color: var(--primary);
+        border-color: #efcbd2;
+        background: #fff7f8;
+    }
 }
 
 @media (max-width: 900px) {
